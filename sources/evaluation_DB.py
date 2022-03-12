@@ -32,8 +32,8 @@ def check_pair(id_days, id_nights):
     for i in range(Nd):
         if id_days[i] != id_nights[i]:
             print(
-                f"[Mismatching images]\tday: {id_days[i]} \
-                /--/ night: {id_nights[i]}"
+                f"[Mismatching images]\tday: {id_days[i]}"
+                + f" /--/ night: {id_nights[i]}"
             )
 
     return 0
