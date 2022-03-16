@@ -3,9 +3,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
-PATH_FOLDER = "../Dataset_test_eval/"
-PATH_DAY = "_DAY_seg"
-PATH_NIGHT = "_NIGHT_seg"
+PATH_FOLDER = "../DB_10/"
+PATH_DAY = "DAY/seg"
+PATH_NIGHT = "NIGHT/seg"
 SCORE_FILE = "score.txt"
 
 

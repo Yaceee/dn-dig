@@ -8,6 +8,7 @@ import glob
 import os
 import sys
 import random
+#from matplotlib.colors import ColorConverter
 
 try:
     sys.path.append(
@@ -24,8 +25,10 @@ except IndexError:
     pass
 import carla
 
-import config.py as conf
+import config as conf
 
+IMAGE_FOLDER = "DAY"
+frame_id = -1
 
 def camera_init(bp_ref, tag, world, vehicle, queue):
     """
@@ -55,11 +58,9 @@ def sensor_callback(image, sensor_queue, image_tag):
         Actions exécutées par les caméras à chaque fois qu'une image est reçue
     """
     if image_tag == conf.SEG_TAG:
-        image.save_to_disk(
-            f"../_{conf.IMAGE_FOLDER}/{image.frame}_{image_tag}.png", carla.cityScapesPalette
-        )
+        image.save_to_disk(f"../DB_{conf.IM_NUMBER}/{IMAGE_FOLDER}/{image_tag}/{frame_id}.png", carla.ColorConverter.CityScapesPalette)
     else:
-        image.save_to_disk(f"../_{conf.IMAGE_FOLDER}/{image.frame}_{image_tag}.png")
+        image.save_to_disk(f"../DB_{conf.IM_NUMBER}/{IMAGE_FOLDER}/{image_tag}/{frame_id}.png")
 
     sensor_queue.put((image.frame, image))
 
@@ -86,7 +87,8 @@ def set_autonom_car(world, tag, tm_port):
     vehicle_bp = blueprint_library.filter(tag)[0]
 
     # pick and place
-    spawn_point = random.choice(world.get_map().get_spawn_points())
+    #spawn_point = random.choice(world.get_map().get_spawn_points())
+    spawn_point = world.get_map().get_spawn_points()[0]
     vehicle = world.spawn_actor(vehicle_bp, spawn_point)
 
     # vehicle action: autonom driving car
