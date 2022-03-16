@@ -3,6 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 
+PATH_FOLDER = "../Dataset_test_eval/"
+PATH_DAY = "_DAY_seg"
+PATH_NIGHT = "_NIGHT_seg"
+SCORE_FILE = "score.txt"
+
 
 def im_load(folder):
     if not path.isdir(folder):
@@ -32,7 +37,7 @@ def check_pair(id_days, id_nights):
     for i in range(Nd):
         if id_days[i] != id_nights[i]:
             print(
-                f"[Mismatching images]\tday: {id_days[i]}"
+                f"[Mismatching names]\tday: {id_days[i]}"
                 + f" /--/ night: {id_nights[i]}"
             )
 
@@ -61,18 +66,39 @@ def score_database(days, nights):
     return scores
 
 
-if __name__ == "__main__":
-    days, id_days = im_load("../Dataset_test_eval/_DAY_seg")
-    nights, id_nights = im_load("../Dataset_test_eval/_NIGHT_seg")
-
-    check_pair(id_days, id_nights)
-
-    scores = score_database(days, nights)
-
+def plot_score(scores):
+    dataset_name = PATH_FOLDER.split("/", -1)[-2]
+    global_score = round(np.mean(scores), 2)
     plt.plot(range(1, len(scores) + 1), scores)
     plt.gca().xaxis.set_major_locator(mticker.MultipleLocator(1))
     plt.ylim(0, 1.05)
     plt.xlabel("frames", fontsize=12)
     plt.ylabel("likeness", fontsize=12)
-    plt.title(f"Dataset score: {np.mean(scores)}", fontsize=18)
+    plt.title(f"{dataset_name} score: {global_score}", fontsize=18)
     plt.show()
+    return 0
+
+
+def write_score(fpath, scores, id):
+    f = open(fpath, "w")
+    dataset_name = PATH_FOLDER.split("/", -1)[-2]
+    f.write(f"{dataset_name} score\n\n")
+    f.write(f"global: {round(np.mean(scores), 2)}\n\n")
+
+    N = len(scores)
+    for i in range(N):
+        f.write(f"{id_days[i]}: {round(scores[i], 2)}\n")
+
+    f.close()
+    return 0
+
+
+if __name__ == "__main__":
+    days, id_days = im_load(PATH_FOLDER + PATH_DAY)
+    nights, id_nights = im_load(PATH_FOLDER + PATH_NIGHT)
+
+    check_pair(id_days, id_nights)
+
+    scores = score_database(days, nights)
+    write_score(PATH_FOLDER + SCORE_FILE, scores, id_days)
+    plot_score(scores)
