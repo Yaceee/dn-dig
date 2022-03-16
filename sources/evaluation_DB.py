@@ -1,12 +1,26 @@
-from os import path, listdir
+import re
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
+import config as conf
+from os import path, listdir
+from tqdm import tqdm
 
-PATH_FOLDER = "../DB_10/"
+PATH_FOLDER = f"../DB_C/DB_{conf.IM_NUMBER}/"
 PATH_DAY = "DAY/seg"
 PATH_NIGHT = "NIGHT/seg"
 SCORE_FILE = "score.txt"
+
+
+def convert(text):
+    return int(text) if text.isdigit() else text.lower()
+
+
+def alphanum_key(key):
+    return [convert(c) for c in re.split("([0-9]+)", key)]
+
+
+def sorted_alphanumeric(data):
+    return sorted(data, key=alphanum_key)
 
 
 def im_load(folder):
@@ -14,8 +28,7 @@ def im_load(folder):
         print(f"{folder} folder does not exist.")
         exit(1)
 
-    names = listdir(folder)
-    names.sort()
+    names = sorted_alphanumeric(listdir(folder))
 
     N = len(names)
     images = [plt.imread(folder + "/" + names[0])[:, :, 0:3]] * N
@@ -60,22 +73,21 @@ def score_database(days, nights):
     N = len(days)
     scores = np.zeros(N, dtype=float)
 
-    for i in range(N):
+    for i in tqdm(range(N)):
         scores[i] = score_im(days[i], nights[i])
 
     return scores
 
 
-def plot_score(scores):
+def make_graph(scores):
     dataset_name = PATH_FOLDER.split("/", -1)[-2]
     global_score = round(np.mean(scores), 2)
     plt.plot(range(1, len(scores) + 1), scores)
-    plt.gca().xaxis.set_major_locator(mticker.MultipleLocator(1))
     plt.ylim(0, 1.05)
     plt.xlabel("frames", fontsize=12)
     plt.ylabel("likeness", fontsize=12)
     plt.title(f"{dataset_name} score: {global_score}", fontsize=18)
-    plt.show()
+    plt.savefig(PATH_FOLDER + "score.png")
     return 0
 
 
@@ -101,4 +113,4 @@ if __name__ == "__main__":
 
     scores = score_database(days, nights)
     write_score(PATH_FOLDER + SCORE_FILE, scores, id_days)
-    plot_score(scores)
+    make_graph(scores)
