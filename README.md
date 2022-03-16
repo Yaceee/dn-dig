@@ -9,3 +9,4 @@ Day&Night Dataset Image Generator utilise [le simulateur CARLA](https://carla.or
 	step1.py         vérifie la synchronisation des capteurs (image jour uniquement)
 	step2A.py        enregistrement des images jours puis rejoue la même simulation en nuit
 	step2B.py        enregistrement des images jours et nuit en même temps
+	step2C.py	 joue des simulations déterministes
