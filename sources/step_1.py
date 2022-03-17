@@ -3,6 +3,7 @@ import config as conf
 
 from queue import Queue
 from queue import Empty
+from time import sleep
 
 
 if __name__ == "__main__":
@@ -11,7 +12,7 @@ if __name__ == "__main__":
         # INITIALIZATION
         #
         # client
-        client = dn.carla.Client(host=conf.host, port=conf.port)
+        client = dn.carla.Client(host=conf.HOST, port=conf.PORT)
         client.set_timeout(2.0)
 
         # world settings
@@ -20,7 +21,7 @@ if __name__ == "__main__":
         settings = world.get_settings()
 
         # set the syncronous mode
-        settings.fixed_delta_seconds = 0.2
+        settings.fixed_delta_seconds = 0.05
         settings.synchronous_mode = True
         world.apply_settings(settings)
 
@@ -49,13 +50,15 @@ if __name__ == "__main__":
         # ---------------------------------------------------------------------
         # MAIN LOOP
         #
-        for _ in range(conf.IM_NUMBER):
+        i = 0
+        while i < conf.IM_NUMBER:
             world.tick()
             try:
                 for _ in range(len(sensor_list)):
                     s_frame = sensor_queue.get(block=True, timeout=1.0)
                     print("Frame: %d Sensor: %s" % (s_frame[0], s_frame[1]))
-
+                i+=1
+                #sleep(2)
             except Empty:
                 print("Some of the sensor information is missed")
         #

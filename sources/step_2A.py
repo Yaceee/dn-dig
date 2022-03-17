@@ -11,23 +11,31 @@ if __name__ == "__main__":
         # INITIALIZATION
         #
         # client
-        client = dn.carla.Client(host=conf.host, port=conf.port)
+        client = dn.carla.Client(host=conf.HOST, port=conf.PORT)
         client.set_timeout(2.0)
 
         # world settings
         world = client.get_world()
         original_settings = world.get_settings()
-        settings = world.get_settings()
 
         # set the syncronous mode
-        settings.fixed_delta_seconds = 0.2
-        settings.synchronous_mode = True
-        world.apply_settings(settings)
+        new_settings = world.get_settings()
+        new_settings.synchronous_mode = True
+        new_settings.fixed_delta_seconds = 0.05
+        world.apply_settings(new_settings)
+
+        #client.reload_world(False) # reload map keeping the world settings
+
+        # Set up the traffic manager
+        traffic_manager = client.get_trafficmanager(conf.TM_PORT)
+        traffic_manager.set_synchronous_mode(True)
+        traffic_manager.set_random_device_seed(conf.TM_SEED)
 
         # weather and vehicle
         dn.set_weather(world, is_sun=True)
-        conf.IMAGE_FOLDER = "DAY"
-        vehicle = dn.set_autonom_car(world, tag="model3", tm_port=0)
+        dn.IMAGE_FOLDER = "DAY"
+        vehicle = dn.set_autonom_car(world, tag="model3", tm_port=conf.TM_PORT)
+        traffic_manager.ignore_lights_percentage(vehicle, 100)
 
         # sensors
         sensor_list = []
@@ -52,15 +60,19 @@ if __name__ == "__main__":
         # ---------------------------------------------------------------------
         # MAIN LOOP
         #
-        for _ in range(conf.IM_NUMBER):
-            world.tick()
+        dn.frame_id = 1
+        while dn.frame_id < conf.IM_NUMBER:
             try:
                 for _ in range(len(sensor_list)):
                     s_frame = sensor_queue.get(block=True, timeout=1.0)
                     print("Frame: %d Sensor: %s" % (s_frame[0], s_frame[1]))
+                dn.frame_id += 1
 
             except Empty:
                 print("Some of the sensor information is missed")
+
+            for _ in range(20):
+                world.tick()
         #
         # ---------------------------------------------------------------------
 
@@ -71,7 +83,7 @@ if __name__ == "__main__":
         #
         # switch to night
         dn.set_weather(world, is_sun=False)
-        conf.IMAGE_FOLDER = "NIGHT"
+        dn.IMAGE_FOLDER = "NIGHT"
 
         # replay
         client.replay_file(

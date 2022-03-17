@@ -12,26 +12,27 @@ if __name__ == "__main__":
         # INITIALIZATION
         #
         # client
-        client = dn.carla.Client(host=conf.host, port=conf.port)
+        client = dn.carla.Client(host=conf.HOST, port=conf.PORT)
         client.set_timeout(2.0)
 
         # world settings
         world = client.get_world()
         original_settings = world.get_settings()
-        settings = world.get_settings()
 
         # set the syncronous mode
-        settings.fixed_delta_seconds = 0.2
-        settings.synchronous_mode = True
-        world.apply_settings(settings)
+        new_settings = world.get_settings()
+        new_settings.synchronous_mode = True
+        new_settings.fixed_delta_seconds = 0.05
+        world.apply_settings(new_settings)
 
-        # Traffic
-        tm_port = 8000
-        tm = client.get_trafficmanager(tm_port)
+        # Set up the traffic manager
+        tm = client.get_trafficmanager(conf.TM_PORT)
+        tm.set_synchronous_mode(True)
 
         # weather and vehicle
         dn.set_weather(world, is_sun=True)
-        vehicle = dn.set_autonom_car(world, tag="model3", tm_port=tm_port)
+        vehicle = dn.set_autonom_car(world, tag="model3", tm_port=conf.TM_PORT)
+        tm.ignore_lights_percentage(vehicle, 100)
 
         # sensors
         sensor_list = []
@@ -54,30 +55,35 @@ if __name__ == "__main__":
         # ---------------------------------------------------------------------
         # MAIN LOOP
         #
-        for _ in range(conf.IM_NUMBER):
+        dn.frame_id = 1
+        while dn.frame_id < conf.IM_NUMBER:
             for i in range(2):
                 if i == 0:
                     # vehicle drives 100% slower than the current speed limit
-                    tm.vehicle_percentage_speed_difference(vehicle, 100)
+                    tm.vehicle_percentage_speed_difference(vehicle, 0)
                     dn.set_weather(world, is_sun=True)
-                    conf.IMAGE_FOLDER = "DAY"
+                    dn.IMAGE_FOLDER = "DAY"
                 else:
                     dn.set_weather(world, is_sun=False)
-                    conf.IMAGE_FOLDER = "NIGHT"
+                    dn.IMAGE_FOLDER = "NIGHT"
 
-                world.tick()
                 try:
                     for _ in range(len(sensor_list)):
                         s_frame = sensor_queue.get(block=True, timeout=1.0)
                         print("Frame: %d Sensor: %s" % (s_frame[0] - i, s_frame[1]))
+                    dn.frame_id += i
 
                 except Empty:
                     print("Some of the sensor information is missed")
 
                 if i == 1:
                     # vehicle drives at the current speed limit
-                    tm.vehicle_percentage_speed_difference(vehicle, 0)
-                    sleep(1)
+                    tm.vehicle_percentage_speed_difference(vehicle, 100)
+
+                    for _ in range(20):
+                        world.tick()
+                else:
+                    world.tick()
         #
         # ---------------------------------------------------------------------
 
