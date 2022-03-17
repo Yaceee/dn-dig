@@ -8,7 +8,6 @@ import glob
 import os
 import sys
 import random
-#from matplotlib.colors import ColorConverter
 
 try:
     sys.path.append(
@@ -40,7 +39,7 @@ def camera_init(bp_ref, tag, world, vehicle, queue):
     camera_bp = blueprint_library.find(bp_ref)
     camera_bp.set_attribute("image_size_x", f"{conf.IM_WIDTH}")
     camera_bp.set_attribute("image_size_y", f"{conf.IM_HEIGHT}")
-    camera_bp.set_attribute("sensor_tick", f"{conf.IM_TICK}")
+    camera_bp.set_attribute("sensor_tick", "1")
     camera_bp.set_attribute("fov", f"{conf.IM_FOV}")
 
     # pick and place
@@ -87,8 +86,7 @@ def set_autonom_car(world, tag, tm_port):
     vehicle_bp = blueprint_library.filter(tag)[0]
 
     # pick and place
-    #spawn_point = random.choice(world.get_map().get_spawn_points())
-    spawn_point = world.get_map().get_spawn_points()[0]
+    spawn_point = world.get_map().get_spawn_points()[1]
     vehicle = world.spawn_actor(vehicle_bp, spawn_point)
 
     # vehicle action: autonom driving car
