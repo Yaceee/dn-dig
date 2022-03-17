@@ -5,10 +5,12 @@ import config as conf
 from os import path, listdir
 from tqdm import tqdm
 
-PATH_FOLDER = f"../DB_C/DB_{conf.IM_NUMBER}/"
+PATH_FOLDER = f"../DB_{conf.IM_NUMBER}/"
 PATH_DAY = "DAY/seg"
 PATH_NIGHT = "NIGHT/seg"
 SCORE_FILE = "score.txt"
+
+SIGNIFICANT_NB = 4
 
 
 def convert(text):
@@ -81,7 +83,7 @@ def score_database(days, nights):
 
 def make_graph(scores):
     dataset_name = PATH_FOLDER.split("/", -1)[-2]
-    global_score = round(np.mean(scores), 2)
+    global_score = round(np.mean(scores), SIGNIFICANT_NB)
     plt.plot(range(1, len(scores) + 1), scores)
     plt.ylim(0, 1.05)
     plt.xlabel("frames", fontsize=12)
@@ -95,11 +97,11 @@ def write_score(fpath, scores, id):
     f = open(fpath, "w")
     dataset_name = PATH_FOLDER.split("/", -1)[-2]
     f.write(f"{dataset_name} score\n\n")
-    f.write(f"global: {round(np.mean(scores), 2)}\n\n")
+    f.write(f"global: {round(np.mean(scores), SIGNIFICANT_NB)}\n\n")
 
     N = len(scores)
     for i in range(N):
-        f.write(f"{id_days[i]}: {round(scores[i], 2)}\n")
+        f.write(f"{id[i]}: {round(scores[i], SIGNIFICANT_NB)}\n")
 
     f.close()
     return 0
