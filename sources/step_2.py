@@ -6,13 +6,13 @@ from queue import Queue, Empty
 from time import sleep
 
 
-def simulation(is_sun):
+def simulation(is_sun, confObj):
     try:
         # ---------------------------------------------------------------------
         # INITIALIZATION
         #
         # client
-        client = dn.carla.Client(conf.HOST, conf.PORT)
+        client = dn.carla.Client(confObj.host, confObj.port)
         client.set_timeout(10.0)
 
 
@@ -42,13 +42,14 @@ def simulation(is_sun):
 
         cam_semantic = dn.camera_init(
             "sensor.camera.semantic_segmentation",
-            conf.SEG_TAG,
+            confObj.segTag,
             world,
             vehicle,
             sensor_queue,
+            confObj
         )
         cam_rgb = dn.camera_init(
-            "sensor.camera.rgb", conf.RGB_TAG, world, vehicle, sensor_queue
+            "sensor.camera.rgb", confObj.rgbTag, world, vehicle, sensor_queue, confObj
         )
 
         sensor_list.append(cam_semantic)
@@ -59,7 +60,7 @@ def simulation(is_sun):
         #
         world.tick()
         print(f"Recording {dn.IMAGE_FOLDER} images")
-        for dn.frame_id in tqdm(range(1, conf.IM_NUMBER+1)):
+        for dn.frame_id in tqdm(range(1, confObj.imNum+1)):
             try:
                 for _ in range(len(sensor_list)):
                     s_frame = sensor_queue.get(block=True, timeout=1)
@@ -83,6 +84,6 @@ def simulation(is_sun):
 
 
 if __name__ == '__main__':
-    simulation(is_sun = True)
-    simulation(is_sun = False)
+    simulation(is_sun = True, confObj=conf.globalConf)
+    simulation(is_sun = False, confObj=conf.globalConf)
     sleep(1) # allow time for saving the last image

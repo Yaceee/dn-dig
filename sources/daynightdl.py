@@ -29,7 +29,7 @@ import config as conf
 IMAGE_FOLDER = "DAY"
 frame_id = -1
 
-def camera_init(bp_ref, tag, world, vehicle, queue):
+def camera_init(bp_ref, tag, world, vehicle, queue, confObj):
     """
         Initialisation d'une caméra à partir d'un blueprint.
         Les images sont enregistrées sous _out/ au format frame_tag.png
@@ -37,10 +37,10 @@ def camera_init(bp_ref, tag, world, vehicle, queue):
     # config the blueprint
     blueprint_library = world.get_blueprint_library()
     camera_bp = blueprint_library.find(bp_ref)
-    camera_bp.set_attribute("image_size_x", f"{conf.IM_WIDTH}")
-    camera_bp.set_attribute("image_size_y", f"{conf.IM_HEIGHT}")
+    camera_bp.set_attribute("image_size_x", f"{confObj.width}")
+    camera_bp.set_attribute("image_size_y", f"{confObj.height}")
     camera_bp.set_attribute("sensor_tick", "1")
-    camera_bp.set_attribute("fov", f"{conf.IM_FOV}")
+    camera_bp.set_attribute("fov", f"{confObj.fov}")
 
     # pick and place
     spawn_point = carla.Transform(carla.Location(x=2.5, z=0.7))
