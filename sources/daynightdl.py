@@ -43,7 +43,8 @@ def camera_init(bp_ref, tag, world, vehicle, queue, confObj):
     camera_bp.set_attribute("fov", f"{confObj.fov}")
 
     # pick and place
-    spawn_point = carla.Transform(carla.Location(x=2.5, z=0.7))
+    spawn_point = carla.Transform(carla.Location(x=2.5, y=0.1, z=80),
+                                  carla.Rotation(roll=0, pitch=-30, yaw=0))
     camera = world.spawn_actor(camera_bp, spawn_point, attach_to=vehicle)
 
     # camera action defined by the sensor callback
