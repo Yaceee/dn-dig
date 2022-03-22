@@ -15,9 +15,14 @@ def simulation(is_sun, confObj):
         client = dn.carla.Client(confObj.host, confObj.port)
         client.set_timeout(10.0)
 
+        # load the specified world
+        try:
+            world = client.load_world(conf.TOWN_ID)
+        except RuntimeError:
+            print(f"{conf.TOWN_ID} not found, use the current world")
+            world = client.get_world()
 
         # set world mode to synchronous
-        world = client.get_world()
         world.apply_settings(
                 dn.carla.WorldSettings(synchronous_mode=True,
                                        no_rendering_mode=False,

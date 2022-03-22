@@ -3,10 +3,15 @@ import error
 HOST = "localhost"
 PORT = 2000
 
+TOWN_ID = "town01"
+
 IM_FOV = 110  # field of view
 IM_WIDTH = 640  # in pixels
 IM_HEIGHT = 480  # in pixels
 IM_NUMBER = 10  # number of scenes to generate
+
+ANGLE_DAY = 70
+ANGLE_NIGHT = -178
 
 RGB_TAG = "rgb"
 SEG_TAG = "seg"

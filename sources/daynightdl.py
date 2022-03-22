@@ -43,8 +43,8 @@ def camera_init(bp_ref, tag, world, vehicle, queue, confObj):
     camera_bp.set_attribute("fov", f"{confObj.fov}")
 
     # pick and place
-    spawn_point = carla.Transform(carla.Location(x=2.5, y=0.1, z=80),
-                                  carla.Rotation(roll=0, pitch=-30, yaw=0))
+    spawn_point = carla.Transform(carla.Location(x=2.5, y=0, z=0.7),
+                                  carla.Rotation(roll=0, pitch=0, yaw=0))
     camera = world.spawn_actor(camera_bp, spawn_point, attach_to=vehicle)
 
     # camera action defined by the sensor callback
@@ -69,7 +69,7 @@ def set_weather(world, is_sun):
     """
         Active le jour ou la nuit suivant la valeur du booléen is_sun
     """
-    angle = (-1 + 2 * is_sun) * 70  # angle = +/- 70°
+    angle = conf.ANGLE_DAY if is_sun else conf.ANGLE_NIGHT
 
     weather = carla.WeatherParameters(
         cloudiness=0, precipitation=0, sun_altitude_angle=angle
@@ -87,7 +87,7 @@ def set_autonom_car(world, tag, tm_port):
     vehicle_bp = blueprint_library.filter(tag)[0]
 
     # pick and place
-    spawn_point = world.get_map().get_spawn_points()[1]
+    spawn_point = world.get_map().get_spawn_points()[0]
     vehicle = world.spawn_actor(vehicle_bp, spawn_point)
 
     # vehicle action: autonom driving car
