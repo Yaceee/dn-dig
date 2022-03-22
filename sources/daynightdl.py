@@ -77,23 +77,31 @@ def set_weather(world, is_sun):
     world.set_weather(weather)
 
 
-def set_autonom_car(world, tag, tm_port):
+def set_autonom_car(world, traffic_rate, tm_port):
     """
-        Met en place un véhicule autonome sur le serveur world
-        Le tag permet de spécifier la marque du véhicule souhaitée
+        Met en place un ensemble de véhicules autonomes sur le serveur world
+        traffic_rate spécifie le taux de la carte par des voitures
     """
     # config the blueprint
     blueprint_library = world.get_blueprint_library()
-    vehicle_bp = blueprint_library.filter(tag)[0]
+    vehicle_bp = blueprint_library.filter("model3")[0]
 
-    # pick and place
-    spawn_point = world.get_map().get_spawn_points()[0]
-    vehicle = world.spawn_actor(vehicle_bp, spawn_point)
+    # select enought spawn points
+    spawn_list = world.get_map().get_spawn_points()
+    nb_vehicle = round(traffic_rate / 100 * (len(spawn_list)-1)) + 1
+    spawn_list = spawn_list[0:nb_vehicle]
 
-    # vehicle action: autonom driving car
-    if tm_port == 0:
-        vehicle.set_autopilot(True)
+    vehicle_list = []
+
+    if IMAGE_FOLDER == "NIGHT":
+        lights = carla.VehicleLightState.All
     else:
-        vehicle.set_autopilot(True, tm_port)
+        lights = carla.VehicleLightState.NONE
 
-    return vehicle
+    for spawn in spawn_list:
+        vehicle = world.spawn_actor(vehicle_bp, spawn)
+        vehicle.set_light_state(lights)
+        vehicle.set_autopilot(True, tm_port)
+        vehicle_list.append(vehicle)
+
+    return vehicle_list

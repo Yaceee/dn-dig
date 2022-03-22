@@ -12,6 +12,7 @@ IM_NUMBER = 10  # number of scenes to generate
 
 ANGLE_DAY = 70
 ANGLE_NIGHT = -178
+TRAFFIC_PERCENTAGE = 20
 
 RGB_TAG = "rgb"
 SEG_TAG = "seg"

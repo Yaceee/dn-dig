@@ -38,11 +38,10 @@ def simulation(is_sun, confObj):
         dn.IMAGE_FOLDER = "DAY" if is_sun else "NIGHT"
         dn.set_weather(world, is_sun=is_sun)
 
-        # car configuration
-        vehicle_list = []
-        vehicle = dn.set_autonom_car(world, tag="model3", tm_port=conf.TM_PORT)
+        # set traffic and pick the first car
+        vehicle_list = dn.set_autonom_car(world, conf.TRAFFIC_PERCENTAGE, conf.TM_PORT)
+        vehicle = vehicle_list[0]
         traffic_manager.ignore_lights_percentage(vehicle, 100)
-        vehicle_list.append(vehicle)
 
         # attach cameras to the vehicle
         sensor_list = []
@@ -62,29 +61,6 @@ def simulation(is_sun, confObj):
 
         sensor_list.append(cam_semantic)
         sensor_list.append(cam_rgb)
-
-        # to do:
-        # put the following code to DayNightDL in set_autonom_car
-        # add a percentage for traffic and return the vehicle list
-        # the first one will have the cameras
-
-        spawn_list = world.get_map().get_spawn_points()[1:]
-        blueprint_library = world.get_blueprint_library()
-        vehicle_bp = blueprint_library.filter("model3")[0]
-
-        if dn.IMAGE_FOLDER == "NIGHT":
-            current_lights = dn.carla.VehicleLightState.All
-        else:
-            current_lights = dn.carla.VehicleLightState.NONE
-
-        for spawn in spawn_list:
-            vehicle = world.spawn_actor(vehicle_bp, spawn)
-            vehicle.set_light_state(current_lights)
-            vehicle.set_autopilot(True, conf.TM_PORT)
-            vehicle_list.append(vehicle)
-
-        # end to do
-
         # ---------------------------------------------------------------------
         # SIMULATION
         #
@@ -98,8 +74,6 @@ def simulation(is_sun, confObj):
                 continue
             for _ in range(20):
                 world.tick()
-
-        sleep(2) # allow time to save the last image
         #
         # ---------------------------------------------------------------------
 
@@ -119,3 +93,4 @@ def simulation(is_sun, confObj):
 if __name__ == '__main__':
     is_sun = True if sys.argv[1] == "sun" else False
     simulation(is_sun, conf.globalConf)
+    sleep(2) # allow time to save the last image
