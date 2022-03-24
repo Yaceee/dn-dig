@@ -12,13 +12,7 @@ IM_NUMBER = 10  # number of scenes to generate
 
 ANGLE_DAY = 70
 ANGLE_NIGHT = -178
-TRAFFIC_PERCENTAGE = 20
-
-RGB_TAG = "rgb"
-SEG_TAG = "seg"
-
-TM_PORT = 8000 # must be different than PORT
-TM_SEED = 1 # traffic manager seed
+TRAFFIC = 20
 
 
 class Config:
@@ -28,13 +22,16 @@ class Config:
 
     
 
-    def __init__(self, host, port, fov, width, height, imNum):
+
+    def __init__(self, host, port, fov, width, height, imNum, sun, moon):
         self.host = host
         self.port = port
         self.fov = fov
         self.width = width
         self.height = height
         self.imNum = imNum
+        self.sun = sun
+        self.moon = moon
 
     def checkConfig(self):
         error.checkConnection(self.host, self.port)
@@ -42,4 +39,5 @@ class Config:
         error.checkFov(self.fov)
         error.checkImgNum(self.imNum)
 
-globalConf = Config(HOST, PORT, IM_FOV, IM_WIDTH, IM_HEIGHT, IM_NUMBER)
+globalConf = Config(HOST, PORT, IM_FOV, IM_WIDTH, IM_HEIGHT, IM_NUMBER,
+                    ANGLE_DAY, ANGLE_NIGHT)
