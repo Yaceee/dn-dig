@@ -6,15 +6,11 @@ from queue import Queue, Empty
 from time import sleep
 
 
-def simulation(is_sun, confObj):
+def simulation(client, is_sun, confObj):
     try:
         # ---------------------------------------------------------------------
         # INITIALIZATION
         #
-        # client
-        client = dn.carla.Client(confObj.host, confObj.port)
-        client.set_timeout(10.0)
-
         # load the specified world
         try:
             world = client.load_world(conf.TOWN_ID)
@@ -37,8 +33,9 @@ def simulation(is_sun, confObj):
         dn.IMAGE_FOLDER = "DAY" if is_sun else "NIGHT"
         dn.set_weather(world, is_sun=is_sun)
 
-        # car configuration
-        vehicle = dn.set_autonom_car(world, tag="model3", tm_port=conf.TM_PORT)
+        # set traffic and pick the first car
+        vehicle_list = dn.set_autonom_car(world, conf.TRAFFIC_PERCENTAGE, conf.TM_PORT)
+        vehicle = vehicle_list[0]
         traffic_manager.ignore_lights_percentage(vehicle, 100)
 
         # attach cameras to the vehicle
@@ -80,15 +77,22 @@ def simulation(is_sun, confObj):
     # CLEANING
     #
     finally:
-        world.apply_settings(dn.carla.WorldSettings(False, False, 0))
-        vehicle.destroy()
+        for vehicle in vehicle_list:
+            vehicle.destroy()
         for sensor in sensor_list:
             sensor.stop()
             sensor.destroy()
+
+        world.apply_settings(dn.carla.WorldSettings(False, False, 0))
         print("Server cleaned")
 
 
 if __name__ == '__main__':
-    simulation(is_sun = True, confObj=conf.globalConf)
-    simulation(is_sun = False, confObj=conf.globalConf)
+    # client
+    client = dn.carla.Client(conf.globalConf.host, conf.globalConf.port)
+    client.set_timeout(10.0)
+
+    # simulations
+    simulation(client, is_sun = True,  confObj=conf.globalConf)
+    simulation(client, is_sun = False, confObj=conf.globalConf)
     sleep(1) # allow time for saving the last image
