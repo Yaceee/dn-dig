@@ -13,9 +13,9 @@ def simulation(client, is_sun, confObj):
         #
         # load the specified world
         try:
-            world = client.load_world(conf.TOWN_ID)
+            world = client.load_world(confObj.town)
         except RuntimeError:
-            print(f"{conf.TOWN_ID} not found, use the current world")
+            print(f"{confObj.town} not found, use the current world")
             world = client.get_world()
 
         # set world mode to synchronous
@@ -25,7 +25,7 @@ def simulation(client, is_sun, confObj):
                                        fixed_delta_seconds=0.05))
 
         # Set up the traffic manager
-        TM_PORT = 8000 # must be different than PORT
+        TM_PORT = 8000
         traffic_manager = client.get_trafficmanager(TM_PORT)
         traffic_manager.set_synchronous_mode(True)
         traffic_manager.set_random_device_seed(1)
@@ -35,7 +35,7 @@ def simulation(client, is_sun, confObj):
         dn.set_weather(world, is_sun, confObj)
 
         # set traffic and pick the first car
-        vehicle_list = dn.set_autonom_car(world, conf.TRAFFIC, TM_PORT)
+        vehicle_list = dn.set_autonom_car(world, confObj, TM_PORT)
         vehicle = vehicle_list[0]
         traffic_manager.ignore_lights_percentage(vehicle, 100)
 

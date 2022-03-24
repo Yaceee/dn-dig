@@ -68,27 +68,31 @@ def set_weather(world, is_sun, confObj):
     world.set_weather(weather)
 
 
-def set_autonom_car(world, traffic_rate, tm_port):
+def set_autonom_car(world, confObj, tm_port):
     # config the blueprint
     blueprint_library = world.get_blueprint_library()
-    vehicle_bp = blueprint_library.filter("model3")[0]
 
     # select enought spawn points
     spawn_list = world.get_map().get_spawn_points()
-    nb_vehicle = round(traffic_rate / 100 * (len(spawn_list)-1)) + 1
+    nb_vehicle = round(confObj.traffic / 100 * (len(spawn_list)-1)) + 1
     spawn_list = spawn_list[0:nb_vehicle]
 
-    vehicle_list = []
+    vehicle_list = [0] * nb_vehicle
 
     if IMAGE_FOLDER == "NIGHT":
         lights = carla.VehicleLightState.All
     else:
         lights = carla.VehicleLightState.NONE
 
+    i = 0
+    nb_model = len(confObj.vehicle_id)
     for spawn in spawn_list:
+        id = confObj.vehicle_id[i % nb_model]
+        vehicle_bp = blueprint_library.filter(id)[0]
         vehicle = world.spawn_actor(vehicle_bp, spawn)
         vehicle.set_light_state(lights)
         vehicle.set_autopilot(True, tm_port)
-        vehicle_list.append(vehicle)
+        vehicle_list[i] = vehicle
+        i += 1
 
     return vehicle_list
