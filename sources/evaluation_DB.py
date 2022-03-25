@@ -101,13 +101,14 @@ def write_score(fpath, scores, id):
 
     N = len(scores)
     for i in range(N):
-        f.write(f"{id[i]}: {round(scores[i], SIGNIFICANT_NB)}\n")
+        f.write(f"{id[i]}: {scores[i]}\n")
 
     f.close()
     return 0
 
 
 if __name__ == "__main__":
+    print("Evaluation of the dataset")
     days, id_days = im_load(PATH_FOLDER + PATH_DAY)
     nights, id_nights = im_load(PATH_FOLDER + PATH_NIGHT)
 

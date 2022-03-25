@@ -1,16 +1,21 @@
 import daynightdl as dn
 import config as conf
-from tqdm import tqdm
+import sys
 
+from tqdm import tqdm
 from queue import Queue, Empty
 from time import sleep
 
 
-def simulation(client, is_sun, confObj):
+def simulation(is_sun, confObj):
     try:
         # ---------------------------------------------------------------------
         # INITIALIZATION
         #
+        # client
+        client = dn.carla.Client(confObj.host, confObj.port)
+        client.set_timeout(10.0)
+
         # load the specified world
         try:
             world = client.load_world(confObj.town)
@@ -80,11 +85,6 @@ def simulation(client, is_sun, confObj):
 
 
 if __name__ == '__main__':
-    # client
-    client = dn.carla.Client(conf.globalConf.host, conf.globalConf.port)
-    client.set_timeout(10.0)
-
-    # simulations
-    simulation(client, is_sun = True,  confObj=conf.globalConf)
-    simulation(client, is_sun = False, confObj=conf.globalConf)
-    sleep(1) # allow time for saving the last image
+    is_sun = True if sys.argv[1] == "sun" else False
+    simulation(is_sun, conf.globalConf)
+    sleep(2) # allow time to save the last image

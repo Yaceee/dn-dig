@@ -24,75 +24,75 @@ except IndexError:
     pass
 import carla
 
-import config as conf
+IMAGE_FOLDER = None
+frame_id = None
 
-IMAGE_FOLDER = "DAY"
-frame_id = -1
-
-def camera_init(bp_ref, tag, world, vehicle, queue, confObj):
-    """
-        Initialisation d'une caméra à partir d'un blueprint.
-        Les images sont enregistrées sous _out/ au format frame_tag.png
-    """
+def camera_init(tag, world, vehicle, queue, confObj):
     # config the blueprint
     blueprint_library = world.get_blueprint_library()
-    camera_bp = blueprint_library.find(bp_ref)
+    if tag == "seg":
+        camera_bp = blueprint_library.find("sensor.camera.semantic_segmentation")
+    elif tag == "rgb":
+        camera_bp = blueprint_library.find("sensor.camera.rgb")
+    else:
+        return None
+
     camera_bp.set_attribute("image_size_x", f"{confObj.width}")
     camera_bp.set_attribute("image_size_y", f"{confObj.height}")
     camera_bp.set_attribute("sensor_tick", "1")
     camera_bp.set_attribute("fov", f"{confObj.fov}")
 
     # pick and place
-    spawn_point = carla.Transform(carla.Location(x=2.5, z=0.7))
+    spawn_point = carla.Transform(carla.Location(x=2.5, y=0, z=0.7),
+                                  carla.Rotation(roll=0, pitch=0, yaw=0))
     camera = world.spawn_actor(camera_bp, spawn_point, attach_to=vehicle)
 
     # camera action defined by the sensor callback
-    camera.listen(lambda data: sensor_callback(data, queue, tag))
+    camera.listen(lambda data: sensor_callback(data, queue, tag, confObj))
 
     return camera
 
 
-def sensor_callback(image, sensor_queue, image_tag):
-    """
-        Actions exécutées par les caméras à chaque fois qu'une image est reçue
-    """
-    if image_tag == conf.SEG_TAG:
-        image.save_to_disk(f"../DB_{conf.IM_NUMBER}/{IMAGE_FOLDER}/{image_tag}/{frame_id}.png", carla.ColorConverter.CityScapesPalette)
+def sensor_callback(image, sensor_queue, tag, confObj):
+    if tag == confObj.segTag:
+        image.save_to_disk(f"../DB_{confObj.imNum}/{IMAGE_FOLDER}/{tag}/{frame_id}.png", carla.ColorConverter.CityScapesPalette)
     else:
-        image.save_to_disk(f"../DB_{conf.IM_NUMBER}/{IMAGE_FOLDER}/{image_tag}/{frame_id}.png")
+        image.save_to_disk(f"../DB_{confObj.imNum}/{IMAGE_FOLDER}/{tag}/{frame_id}.png")
 
     sensor_queue.put((image.frame, image))
 
 
-def set_weather(world, is_sun):
-    """
-        Active le jour ou la nuit suivant la valeur du booléen is_sun
-    """
-    angle = (-1 + 2 * is_sun) * 70  # angle = +/- 70°
-
-    weather = carla.WeatherParameters(
-        cloudiness=0, precipitation=0, sun_altitude_angle=angle
-    )
+def set_weather(world, is_sun, confObj):
+    angle = confObj.sun if is_sun else confObj.moon
+    weather = carla.WeatherParameters(sun_altitude_angle=angle)
     world.set_weather(weather)
 
 
-def set_autonom_car(world, tag, tm_port):
-    """
-        Met en place un véhicule autonome sur le serveur world
-        Le tag permet de spécifier la marque du véhicule souhaitée
-    """
+def set_autonom_car(world, confObj, tm_port):
     # config the blueprint
     blueprint_library = world.get_blueprint_library()
-    vehicle_bp = blueprint_library.filter(tag)[0]
 
-    # pick and place
-    spawn_point = world.get_map().get_spawn_points()[1]
-    vehicle = world.spawn_actor(vehicle_bp, spawn_point)
+    # select enought spawn points
+    spawn_list = world.get_map().get_spawn_points()
+    nb_vehicle = round(confObj.traffic / 100 * (len(spawn_list)-1)) + 1
+    spawn_list = spawn_list[0:nb_vehicle]
 
-    # vehicle action: autonom driving car
-    if tm_port == 0:
-        vehicle.set_autopilot(True)
+    vehicle_list = [0] * nb_vehicle
+
+    if IMAGE_FOLDER == "NIGHT":
+        lights = carla.VehicleLightState.All
     else:
-        vehicle.set_autopilot(True, tm_port)
+        lights = carla.VehicleLightState.NONE
 
-    return vehicle
+    i = 0
+    nb_model = len(confObj.vehicle_id)
+    for spawn in spawn_list:
+        id = confObj.vehicle_id[i % nb_model]
+        vehicle_bp = blueprint_library.filter(id)[0]
+        vehicle = world.spawn_actor(vehicle_bp, spawn)
+        vehicle.set_light_state(lights)
+        vehicle.set_autopilot(True, tm_port)
+        vehicle_list[i] = vehicle
+        i += 1
+
+    return vehicle_list
