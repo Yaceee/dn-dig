@@ -54,10 +54,11 @@ def camera_init(tag, world, vehicle, queue, confObj):
 
 
 def sensor_callback(image, sensor_queue, tag, confObj):
+    path = f"../DB/{IMAGE_FOLDER}/{tag}/{confObj.town}_{confObj.sim}_{frame_id}.png"
     if tag == confObj.segTag:
-        image.save_to_disk(f"../DB_{confObj.imNum}/{IMAGE_FOLDER}/{tag}/{frame_id}.png", carla.ColorConverter.CityScapesPalette)
+        image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
     else:
-        image.save_to_disk(f"../DB_{confObj.imNum}/{IMAGE_FOLDER}/{tag}/{frame_id}.png")
+        image.save_to_disk(path)
 
     sensor_queue.put((image.frame, image))
 
