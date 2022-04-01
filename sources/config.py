@@ -1,4 +1,11 @@
-import error
+"""
+Projet DayNightDL
+
+Objet de configuration de la simulation
+
+"""
+
+import sources.error as error
 
 HOST = "localhost"
 PORT = 2000
