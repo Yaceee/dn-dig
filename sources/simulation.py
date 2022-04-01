@@ -62,7 +62,7 @@ def simulation(is_sun, confObj):
         for dn.frame_id in tqdm(range(1, confObj.imNum+1)):
             try:
                 for _ in range(len(sensor_list)):
-                    s_frame = sensor_queue.get(block=True, timeout=1)
+                    s_frame = sensor_queue.get(block=True, timeout=2)
             except Empty:
                 continue
             for _ in range(20):
@@ -86,5 +86,8 @@ def simulation(is_sun, confObj):
 
 if __name__ == '__main__':
     is_sun = True if sys.argv[1] == "sun" else False
-    simulation(is_sun, conf.globalConf)
+
+    sim_conf = conf.Config(town=sys.argv[2], sim=sys.argv[3], imNum=251)
+
+    simulation(is_sun, sim_conf)
     sleep(2) # allow time to save the last image
