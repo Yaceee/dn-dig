@@ -5,9 +5,9 @@ import config as conf
 from os import path, listdir
 from tqdm import tqdm
 
-PATH_FOLDER = f"../DB_{conf.IM_NUMBER}/"
-PATH_DAY = "DAY/seg"
-PATH_NIGHT = "NIGHT/seg"
+PATH_FOLDER = f"../DB_2000/"
+PATH_DAY = "DAY/seg/"
+PATH_NIGHT = "NIGHT/seg/"
 SCORE_FILE = "score.txt"
 
 SIGNIFICANT_NB = 4
@@ -25,25 +25,12 @@ def sorted_alphanumeric(data):
     return sorted(data, key=alphanum_key)
 
 
-def im_load(folder):
-    if not path.isdir(folder):
-        print(f"{folder} folder does not exist.")
-        exit(1)
-
-    names = sorted_alphanumeric(listdir(folder))
-
-    N = len(names)
-    images = [plt.imread(folder + "/" + names[0])[:, :, 0:3]] * N
-
-    for i in range(1, N):
-        images[i] = plt.imread(folder + "/" + names[i])[:, :, 0:3]
-
-    return images, names
-
-
 def check_pair(id_days, id_nights):
+    print("Checking pairs...")
+
     Nd = len(id_days)
     Nn = len(id_nights)
+    mismatch = 0
 
     if Nd != Nn:
         print(f"[Mismatching numbers]\tday: {Nd} /--/ night: {Nn}")
@@ -55,28 +42,34 @@ def check_pair(id_days, id_nights):
                 f"[Mismatching names]\tday: {id_days[i]}"
                 + f" /--/ night: {id_nights[i]}"
             )
+            mismatch = 1
+
+    if not mismatch:
+        print("All pairs are well named")
 
     return 0
 
 
 def score_im(day, night):
-    score = 0
+    error = 0
     w, h, _ = np.shape(day)
 
-    for x in range(w):
-        for y in range(h):
-            score += not any(day[x, y, :] != night[x, y, :])
+    error = np.sum(np.any(day != night, axis=2))
 
-    score /= w * h
-    return score
+    error /= w * h
+    return 1 - error
 
 
-def score_database(days, nights):
-    N = len(days)
+def evaluation(id_days, id_nights):
+    print("Evaluation of the dataset...")
+
+    N = len(id_days)
     scores = np.zeros(N, dtype=float)
 
     for i in tqdm(range(N)):
-        scores[i] = score_im(days[i], nights[i])
+        im_day = plt.imread(PATH_FOLDER + PATH_DAY + id_days[i])[:, :, 0:3]
+        im_night = plt.imread(PATH_FOLDER + PATH_NIGHT + id_nights[i])[:, :, 0:3]
+        scores[i] = score_im(im_day, im_night)
 
     return scores
 
@@ -93,8 +86,8 @@ def make_graph(scores):
     return 0
 
 
-def write_score(fpath, scores, id):
-    f = open(fpath, "w")
+def write_score(scores, id):
+    f = open(PATH_FOLDER + SCORE_FILE, "w")
     dataset_name = PATH_FOLDER.split("/", -1)[-2]
     f.write(f"{dataset_name} score\n\n")
     f.write(f"global: {round(np.mean(scores), SIGNIFICANT_NB)}\n\n")
@@ -108,12 +101,13 @@ def write_score(fpath, scores, id):
 
 
 if __name__ == "__main__":
-    print("Evaluation of the dataset")
-    days, id_days = im_load(PATH_FOLDER + PATH_DAY)
-    nights, id_nights = im_load(PATH_FOLDER + PATH_NIGHT)
+    id_days = sorted_alphanumeric(listdir(PATH_FOLDER + PATH_DAY))
+    id_nights = sorted_alphanumeric(listdir(PATH_FOLDER + PATH_NIGHT))
 
     check_pair(id_days, id_nights)
 
-    scores = score_database(days, nights)
-    write_score(PATH_FOLDER + SCORE_FILE, scores, id_days)
+    scores = evaluation(id_days, id_nights)
+
+    print("Writting results")
     make_graph(scores)
+    write_score(scores, id_days)
