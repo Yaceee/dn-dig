@@ -10,23 +10,66 @@
 	<h1>DayNightDL - DIG</h1>
 
 	<label for="imNum">Number of images</label>
-	<input type="number" name="inNum" min="1" value="1">
+	<input type="number" name="imNum" min="1" value="1" id="imNum">
 
 	<label for="host">Host</label>
-	<input type="text" value="localhost" name="host">
+	<input type="text" value="localhost" name="host" id="host">
 
 	<label for="port">Port</label>
-	<input type="number" min="1" value="8000" name="port">
+	<input type="number" min="1" value="8000" name="port" id="port">
 
 	<label for="width">Width</label>
-	<input type="number" value="640" min="1" name="width">
+	<input type="number" value="640" min="1" name="width" id="width">
 
 	<label for="height">Height</label>
-	<input type="number" value="480" min="1" name="height">
+	<input type="number" value="480" min="1" name="height" id="height">
 
 	<label for="fov">Field of view</label>
-	<input type="number" value="110" min="1" max="360" name="fov">
+	<input type="number" value="110" min="1" max="360" name="fov" id="fov">
 
-	<button>Generate</button>
+	<label for="day">Angle Day</label>
+	<input type="number" value="110" min="1" max="360" name="day" id="day">
+
+	<label for="night">Angle Night</label>
+	<input type="number" value="110" min="1" max="360" name="night" id="night">
+
+	<label for="traffic">Traffic</label>
+	<input type="number" value="20" min="0" max="100" name="traffic" id="traffic">
+
+	<button id="generate-button">Generate</button>
+
+	<script type="text/javascript" src="/eel.js"></script>
+	<script>
+		function startSimulation()
+		{
+			eel.startSimulationPy(createJSONFromConfig())
+		}
+
+		function createJSONFromConfig()
+		{
+			json_conf = {
+				'imNum' : document.getElementById('imNum').value,
+				'host' : document.getElementById('host').value,
+				'port' : document.getElementById('port').value,
+				'width' : document.getElementById('width').value,
+				'height' : document.getElementById('height').value,
+				'fov' : document.getElementById('fov').value,
+				'day' : document.getElementById('day').value,
+				'night' : document.getElementById('night').value,
+				'traffic' : document.getElementById('traffic').value
+			}
+
+			return json_conf
+		}
+
+		function mountButton()
+		{
+			btn = document.getElementById('generate-button')
+
+			btn.addEventListener("click", startSimulation)
+		}
+
+		mountButton()
+	</script>
 </body>
 </html>
