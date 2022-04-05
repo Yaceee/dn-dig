@@ -4,39 +4,65 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="style.css">
 	<title>Document</title>
 </head>
 <body>
 	<h1>DayNightDL - DIG</h1>
+	<div class="form-cont">
 
-	<label for="imNum">Number of images</label>
-	<input type="number" name="imNum" min="1" value="1" id="imNum">
-
-	<label for="host">Host</label>
-	<input type="text" value="localhost" name="host" id="host">
-
-	<label for="port">Port</label>
-	<input type="number" min="1" value="8000" name="port" id="port">
-
-	<label for="width">Width</label>
-	<input type="number" value="640" min="1" name="width" id="width">
-
-	<label for="height">Height</label>
-	<input type="number" value="480" min="1" name="height" id="height">
-
-	<label for="fov">Field of view</label>
-	<input type="number" value="110" min="1" max="360" name="fov" id="fov">
-
-	<label for="day">Angle Day</label>
-	<input type="number" value="110" min="1" max="360" name="day" id="day">
-
-	<label for="night">Angle Night</label>
-	<input type="number" value="110" min="1" max="360" name="night" id="night">
-
-	<label for="traffic">Traffic</label>
-	<input type="number" value="20" min="0" max="100" name="traffic" id="traffic">
-
-	<button id="generate-button">Generate</button>
+		<div class="input-cont">
+			<label for="imNum">Number of images</label>
+			<input type="number" name="imNum" min="1" value="1" id="imNum">
+		</div>
+	
+		<div class="input-cont">
+			<label for="host">Host</label>
+			<input type="text" value="localhost" name="host" id="host">
+		</div>
+	
+		<div class="input-cont">
+			<label for="port">Port</label>
+			<input type="number" min="1" value="8000" name="port" id="port">
+		</div>
+	
+		<div class="input-cont">
+			<label for="town">Town</label>
+			<input type="number" min="1" value="10" name="town" id="town">
+		</div>
+	
+		<div class="input-cont">
+			<label for="width">Width</label>
+			<input type="number" value="640" min="1" name="width" id="width">
+		</div>
+	
+		<div class="input-cont">
+			<label for="height">Height</label>
+			<input type="number" value="480" min="1" name="height" id="height">
+		</div>
+	
+		<div class="input-cont">
+			<label for="fov">Field of view</label>
+			<input type="number" value="110" min="1" max="360" name="fov" id="fov">
+		</div>
+	
+		<div class="input-cont">
+			<label for="day">Angle Day</label>
+			<input type="number" value="110" min="1" max="360" name="day" id="day">
+		</div>
+	
+		<div class="input-cont">
+			<label for="night">Angle Night</label>
+			<input type="number" value="110" min="1" max="360" name="night" id="night">
+		</div>
+	
+		<div class="input-cont">
+			<label for="traffic">Traffic</label>
+			<input type="number" value="20" min="0" max="100" name="traffic" id="traffic">
+		</div>
+	
+		<button id="generate-button">Generate</button>
+	</div>
 
 	<script type="text/javascript" src="/eel.js"></script>
 	<script>
@@ -56,7 +82,8 @@
 				'fov' : document.getElementById('fov').value,
 				'day' : document.getElementById('day').value,
 				'night' : document.getElementById('night').value,
-				'traffic' : document.getElementById('traffic').value
+				'traffic' : document.getElementById('traffic').value,
+				'town' : document.getElementById('town').value
 			}
 
 			return json_conf
