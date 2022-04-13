@@ -42,7 +42,7 @@ def camera_init(tag, world, vehicle, queue, config):
 
     camera_bp.set_attribute("image_size_x", f"{config.dimension[0]}")
     camera_bp.set_attribute("image_size_y", f"{config.dimension[1]}")
-    camera_bp.set_attribute("sensor_tick", "1")
+    camera_bp.set_attribute("sensor_tick", f"{config.fps}")
     camera_bp.set_attribute("fov", f"{config.fov}")
 
     # pick and place
@@ -66,8 +66,7 @@ def camera_init(tag, world, vehicle, queue, config):
 
 
 def sensor_callback(image, sensor_queue, tag, config):
-    path = f"../{config.dbname}/{IMAGE_FOLDER}/{tag}/ \
-                {config.town}_{config.tag}_{frame_id}.png"
+    path = f"../{config.dbname}/{IMAGE_FOLDER}/{tag}/{config.town}_{config.tag}_{frame_id}.png"
     if tag == "seg":
         image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
     else:

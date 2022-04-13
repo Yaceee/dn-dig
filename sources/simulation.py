@@ -23,10 +23,11 @@ def simulation(config):
             world = client.get_world()
 
         # set world mode to synchronous
+        delta_sec = 0.1
         world.apply_settings(dn.carla.WorldSettings(
                                 synchronous_mode=True,
                                 no_rendering_mode=False,
-                                fixed_delta_seconds=0.05)
+                                fixed_delta_seconds=delta_sec)
                              )
 
         # Set up the traffic manager
@@ -62,10 +63,11 @@ def simulation(config):
         for dn.frame_id in tqdm(range(1, config.number+1)):
             try:
                 for _ in range(len(sensor_list)):
-                    sensor_queue.get(block=True, timeout=2)
+                    sensor_queue.get(block=True, timeout=5)
             except Empty:
+                print("Sensor error")
                 continue
-            for _ in range(20):
+            for _ in range(int(config.fps/delta_sec)):
                 world.tick()
         #
         # ---------------------------------------------------------------------
@@ -121,6 +123,12 @@ if __name__ == '__main__':
         default=100,
         type=float,
         help='Vehicles speed percentage (default: 100 => the fastest)'
+    )
+    argparser.add_argument(
+        '--fps', '-fps',
+        default=1,
+        type=float,
+        help='Number of fps in simulator time (default: 1)'
     )
     argparser.add_argument(
         '--fov',
