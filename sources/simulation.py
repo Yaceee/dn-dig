@@ -40,7 +40,7 @@ def simulation(config):
         dn.set_weather(world, config)
 
         # set traffic and pick the first car
-        vehicle_list = dn.set_autonom_car(world, config, TM_PORT)
+        vehicle_list = dn.set_autonom_car(world, config, traffic_manager, TM_PORT)
         vehicle = vehicle_list[0]
         traffic_manager.ignore_lights_percentage(vehicle, 100)
 
@@ -74,11 +74,13 @@ def simulation(config):
     # CLEANING
     #
     finally:
-        for vehicle in vehicle_list:
-            vehicle.destroy()
+        sleep(2)  # allow time to save the last image
+
         for sensor in sensor_list:
             sensor.stop()
             sensor.destroy()
+        for vehicle in vehicle_list:
+            vehicle.destroy()
 
         world.apply_settings(dn.carla.WorldSettings(False, False, 0))
         print("Server cleaned")
@@ -98,11 +100,27 @@ if __name__ == '__main__':
         help='TCP port to listen to (default: 2000)'
     )
     argparser.add_argument(
+        '--dbname', '-n',
+        default='DB',
+        help='Main folder name where images are stored (default: DB)'
+    )
+    argparser.add_argument(
+        '--tag',
+        default='a',
+        help='Extra tag for image names (default: a)'
+    )
+    argparser.add_argument(
         '--town', '-t',
         default='town01',
         choices=['town01', 'town02', 'town03', 'town04',
                  'town05', 'town06', 'town07', 'town10HD'],
         help='Selected town (default: town01)'
+    )
+    argparser.add_argument(
+        '--speed', '-s',
+        default=100,
+        type=float,
+        help='Vehicles speed percentage (default: 100 => the fastest)'
     )
     argparser.add_argument(
         '--fov',
@@ -118,7 +136,7 @@ if __name__ == '__main__':
         help='Image dimension (default: [1920, 1080])'
     )
     argparser.add_argument(
-        '--number', '-n',
+        '--number', '-N',
         default=100,
         type=int,
         help='Number of image (default: 100)'
@@ -153,5 +171,3 @@ if __name__ == '__main__':
     config = argparser.parse_args()
 
     simulation(config)
-
-    sleep(2)  # allow time to save the last image

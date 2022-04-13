@@ -81,7 +81,7 @@ def set_weather(world, config):
     world.set_weather(weather)
 
 
-def set_autonom_car(world, config, tm_port):
+def set_autonom_car(world, config, traffic_manager, tm_port):
     # config the blueprint
     blueprint_library = world.get_blueprint_library()
 
@@ -97,6 +97,7 @@ def set_autonom_car(world, config, tm_port):
     else:
         lights = carla.VehicleLightState.NONE
 
+    max_speed = 100 - config.speed
     i = 0
     nb_model = len(VEHICLE_ID)
     for spawn in spawn_list:
@@ -105,6 +106,7 @@ def set_autonom_car(world, config, tm_port):
         vehicle = world.spawn_actor(vehicle_bp, spawn)
         vehicle.set_light_state(lights)
         vehicle.set_autopilot(True, tm_port)
+        traffic_manager.vehicle_percentage_speed_difference(vehicle, max_speed)
         vehicle_list[i] = vehicle
         i += 1
 
