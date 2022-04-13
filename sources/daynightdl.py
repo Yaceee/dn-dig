@@ -8,6 +8,8 @@ import glob
 import os
 import sys
 
+from sources.config import Config
+
 try:
     sys.path.append(
         glob.glob(
@@ -80,7 +82,7 @@ def set_weather(world, config):
     world.set_weather(weather)
 
 
-def set_autonom_car(world, config, traffic_manager, tm_port):
+def set_autonom_car(world, config : Config, tm_port):
     # config the blueprint
     blueprint_library = world.get_blueprint_library()
 
@@ -98,9 +100,9 @@ def set_autonom_car(world, config, traffic_manager, tm_port):
 
     max_speed = 100 - config.speed
     i = 0
-    nb_model = len(VEHICLE_ID)
+    nb_model = len(config.getVehicleId())
     for spawn in spawn_list:
-        id = VEHICLE_ID[i % nb_model]
+        id = config.getVehicleId()[i % nb_model]
         vehicle_bp = blueprint_library.filter(id)[0]
         vehicle = world.spawn_actor(vehicle_bp, spawn)
         vehicle.set_light_state(lights)

@@ -1,5 +1,6 @@
 import daynightdl as dn
 import argparse
+from sources.config import Config
 
 from tqdm import tqdm
 from queue import Queue, Empty
@@ -177,5 +178,8 @@ if __name__ == '__main__':
     )
 
     config = argparser.parse_args()
+    conf_obj = Config(config.host, config.port, config.tag, config.town, config.fov, config.dimension[0], config.dimension[1], config.number, config.angle, config.traffic)
 
-    simulation(config)
+    simulation(conf_obj)
+
+    sleep(2)  # allow time to save the last image
