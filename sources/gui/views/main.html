@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="style.css">
+	<title>Document</title>
+</head>
+<body>
+	<div class="title">
+		<img src="../img/logo_dn_titre.png" alt="Logo titre">
+	</div>
+	<div class="form-cont">
+
+		<div class="input-cont">
+			<label for="imNum">Number of images</label>
+			<input type="number" name="imNum" min="1" value="1" id="imNum">
+		</div>
+	
+		<div class="input-cont">
+			<label for="host">Host</label>
+			<input type="text" value="localhost" name="host" id="host">
+		</div>
+	
+		<div class="input-cont">
+			<label for="port">Port</label>
+			<input type="number" min="1" value="8000" name="port" id="port">
+		</div>
+	
+		<div class="input-cont">
+			<label for="town">Town</label>
+			<input type="number" min="1" value="10" name="town" id="town">
+		</div>
+	
+		<div class="input-cont">
+			<label for="width">Width</label>
+			<input type="number" value="640" min="1" name="width" id="width">
+		</div>
+	
+		<div class="input-cont">
+			<label for="height">Height</label>
+			<input type="number" value="480" min="1" name="height" id="height">
+		</div>
+	
+		<div class="input-cont">
+			<label for="fov">Field of view</label>
+			<input type="number" value="110" min="1" max="360" name="fov" id="fov">
+		</div>
+	
+		<div class="input-cont">
+			<label for="day">Angle Day</label>
+			<input type="number" value="110" min="1" max="360" name="day" id="day">
+		</div>
+	
+		<div class="input-cont">
+			<label for="night">Angle Night</label>
+			<input type="number" value="110" min="1" max="360" name="night" id="night">
+		</div>
+	
+		<div class="input-cont">
+			<label for="traffic">Traffic</label>
+			<input type="number" value="20" min="0" max="100" name="traffic" id="traffic">
+		</div>
+	
+		<button id="generate-button">Generate</button>
+	</div>
+
+	<script type="text/javascript" src="/eel.js"></script>
+	<script>
+		function startSimulation()
+		{
+			eel.startSimulationPy(createJSONFromConfig())
+		}
+
+		function createJSONFromConfig()
+		{
+			json_conf = {
+				'imNum' : document.getElementById('imNum').value,
+				'host' : document.getElementById('host').value,
+				'port' : document.getElementById('port').value,
+				'width' : document.getElementById('width').value,
+				'height' : document.getElementById('height').value,
+				'fov' : document.getElementById('fov').value,
+				'day' : document.getElementById('day').value,
+				'night' : document.getElementById('night').value,
+				'traffic' : document.getElementById('traffic').value,
+				'town' : document.getElementById('town').value
+			}
+
+			return json_conf
+		}
+
+		function mountButton()
+		{
+			btn = document.getElementById('generate-button')
+
+			btn.addEventListener("click", startSimulation)
+		}
+
+		mountButton()
+	</script>
+</body>
+</html>
