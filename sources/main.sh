@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-python3 simulation.py sun
-python3 simulation.py night
-python3 evaluation_DB.py
+
+python3 simulation.py sun town03 d
+python3 simulation.py night town03 d

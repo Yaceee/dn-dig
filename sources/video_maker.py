@@ -16,26 +16,29 @@ def get_images_path(dir):
 
 width = 1920
 height = 1080
-fps = 20
+fps = 5
 
-day_files = get_images_path("DB_video/DAY/rgb")
-seg_files = get_images_path("DB_video/DAY/seg")
-ngt_files = get_images_path("DB_video/NIGHT/rgb")
+left_path = "../DB_fps_1/DAY/rgb"
+center_path = "../DB_fps_0d75/DAY/rgb"
+right_path = "../DB_fps_0d5/DAY/rgb"
 
+left_files = get_images_path(left_path)
+center_files = get_images_path(center_path)
+right_files = get_images_path(right_path)
 
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-video = cv2.VideoWriter('video.avi', fourcc, fps, (width, height))
+fourc = cv2.VideoWriter_fourcc(*'mp4v')
+video = cv2.VideoWriter('video.avi', fourc, fps, (width, height))
 
-for i in tqdm(range(1, len(day_files))):
-    day = cv2.imread(day_files[i])
-    ngt = cv2.imread(ngt_files[i])
-    seg = cv2.imread(seg_files[i])
+for i in tqdm(range(1, len(left_files))):
+    l = cv2.imread(left_files[i])
+    c = cv2.imread(center_files[i])
+    r = cv2.imread(right_files[i])
 
-    ngt = cv2.resize(ngt, (640, height))
-    day = cv2.resize(day, (640, height))
-    seg = cv2.resize(seg, (640, height))
+    l = cv2.resize(l, (640, height))
+    c = cv2.resize(c, (640, height))
+    r = cv2.resize(r, (640, height))
 
-    img = cv2.hconcat([day, seg, ngt])
+    img = cv2.hconcat([l, c, r])
     video.write(img)
 
 cv2.destroyAllWindows()
