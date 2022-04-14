@@ -11,7 +11,7 @@ import json as JSON
 HOST = "localhost"
 PORT = 2000
 
-TOWN_ID = "town10HD"
+TOWN_ID = 8
 
 IM_FOV = 110  # field of view
 IM_WIDTH = 1920  # in pixels
@@ -30,26 +30,31 @@ class Config:
 	rgbTag = "rgb"
 	segTag = "seg"
 
+	towns = ['town01', 'town02', 'town03', 'town04',
+                 'town05', 'town06', 'town07', 'town10HD']
+
 	VEHICLE_ID = ["a2", "impala", "c3", "microlino", "charger_police", "tt", "wrangler_rubicon", "coupe", "coupe_2020", "low_rider", "charger_2020", "ambulance", "mkz_2020", "mini", "prius", "crown", "carlacola", "zx125", "nissan", "charger_police_2020", "sprinter", "etron", "leon", "t2_2021", "cybertruck", "mkz_2017", "mustang", "carlamotors", "volkswagen", "tesla", "century", "omafiets", "grandtourer", "crossbike", "ninja", "yzf", "patrol", "micra", "cooper_s"]
 
 	def __init__(self, host=HOST, port=PORT, sim=SIM_ID, town=TOWN_ID, fov=IM_FOV, width=IM_WIDTH, height=IM_HEIGHT, imNum=IM_NUMBER, angle=ANGLE_DAY, traffic=TRAFFIC, vehicle_id=VEHICLE_ID):
 		self.host = host
 		self.port = port
 		self.sim = sim
-		self.town = town
-		self.fov = fov
-		self.width = width
-		self.height = height
-		self.imNum = imNum
-		self.angle = angle
-		self.traffic = traffic
+		self.town = Config.towns[int(town)-1]
+		self.fov = int(fov)
+		self.width = int(width)
+		self.height = int(height)
+		self.imNum = int(imNum)
+		self.angle = int(angle)
+		self.traffic = int(traffic)
 		self.vehicle_id = vehicle_id
+		self.speed = 100
+		self.tag = 'a'
 
 	def getHost(self):
 		return self.host
 
 	def getPort(self):
-		return self.port
+		return int(self.port)
 
 	def getTown(self):
 		return self.town
@@ -67,7 +72,7 @@ class Config:
 		return self.imNum
 
 	def getAngle(self):
-		return self.angle
+		return int(self.angle)
 
 	def getTraffic(self):
 		return self.traffic
@@ -81,6 +86,11 @@ class Config:
 		error.checkFov(self.fov)
 		error.checkImgNum(self.imNum)
 
+	def __str__(self) -> str:
+		ret_str = "Conf object\n"
+		for a in dir(self):
+			ret_str += "{} : {}\n".format(a, type(getattr(self, a)))
+		return ret_str
 
 def confFromJSON(json : JSON):
 	decoded = json

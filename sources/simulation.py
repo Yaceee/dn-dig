@@ -7,13 +7,14 @@ from queue import Queue, Empty
 from time import sleep
 
 
-def simulation(config):
+def simulation(config : Config):
     try:
         # ---------------------------------------------------------------------
         # INITIALIZATION
         #
         # client
-        client = dn.carla.Client(config.host, config.port)
+        print(config)
+        client = dn.carla.Client(config.getHost(), config.getPort())
         client.set_timeout(10.0)
 
         # load the specified world
@@ -33,7 +34,11 @@ def simulation(config):
 
         # Set up the traffic manager
         TM_PORT = 8000
-        traffic_manager = client.get_trafficmanager(TM_PORT)
+        try:
+            traffic_manager = client.get_trafficmanager(TM_PORT)
+        except RuntimeError:
+            TM_PORT += 1
+            traffic_manager = client.get_trafficmanager(TM_PORT)
         traffic_manager.set_synchronous_mode(True)
         traffic_manager.set_random_device_seed(1)
 
@@ -42,7 +47,7 @@ def simulation(config):
         dn.set_weather(world, config)
 
         # set traffic and pick the first car
-        vehicle_list = dn.set_autonom_car(world, config, traffic_manager, TM_PORT)
+        vehicle_list = dn.set_autonom_car(world, config, TM_PORT)
         vehicle = vehicle_list[0]
         traffic_manager.ignore_lights_percentage(vehicle, 100)
 

@@ -16,6 +16,6 @@ if __name__ == '__main__':
     
     eel.browsers.set_path('electron', './node_modules/electron/dist/electron')
 
-    eel.start('./views/main.html', mode="electron", host="localhost", port=8000, disable_cache=True)
+    eel.start('./views/main.html', mode="electron", host="localhost", port=21445, disable_cache=True)
 
     
