@@ -8,7 +8,7 @@ import glob
 import os
 import sys
 
-from sources.config import Config
+from config import Config
 
 try:
     sys.path.append(

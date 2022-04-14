@@ -5,8 +5,8 @@ Objet de configuration de la simulation
 
 """
 
-import sources.error as error
-import json
+import error as error
+import json as JSON
 
 HOST = "localhost"
 PORT = 2000
@@ -82,12 +82,14 @@ class Config:
 		error.checkImgNum(self.imNum)
 
 
-def confFromJSON(json : json):
-	decoded = json.loads(json)
-	confDay = Config(decoded['host'], decoded['port'],SIM_ID , decoded['townId'], decoded['fov'],
+def confFromJSON(json : JSON):
+	decoded = json
+
+	confDay = Config(decoded['host'], decoded['port'],SIM_ID , decoded['town'], decoded['fov'],
 	decoded['width'], decoded['height'], decoded['imNum'], decoded['day'],
 	decoded['traffic'], Config.VEHICLE_ID)
-	confNight = Config(decoded['host'], decoded['port'],SIM_ID , decoded['townId'], decoded['fov'],
+
+	confNight = Config(decoded['host'], decoded['port'],SIM_ID , decoded['town'], decoded['fov'],
 	decoded['width'], decoded['height'], decoded['imNum'], decoded['night'],
 	decoded['traffic'], Config.VEHICLE_ID)
 	return (confDay, confNight)

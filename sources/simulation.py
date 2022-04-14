@@ -1,6 +1,6 @@
 import daynightdl as dn
 import argparse
-from sources.config import Config
+from config import Config
 
 from tqdm import tqdm
 from queue import Queue, Empty
