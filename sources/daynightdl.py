@@ -44,7 +44,7 @@ def camera_init(tag, world, vehicle, queue, config):
 
     camera_bp.set_attribute("image_size_x", f"{config.dimension[0]}")
     camera_bp.set_attribute("image_size_y", f"{config.dimension[1]}")
-    camera_bp.set_attribute("sensor_tick", "1")
+    camera_bp.set_attribute("sensor_tick", f"{config.fps}")
     camera_bp.set_attribute("fov", f"{config.fov}")
 
     # pick and place
@@ -68,8 +68,7 @@ def camera_init(tag, world, vehicle, queue, config):
 
 
 def sensor_callback(image, sensor_queue, tag, config):
-    path = f"../{config.dbname}/{IMAGE_FOLDER}/{tag}/ \
-                {config.town}_{config.tag}_{frame_id}.png"
+    path = f"../{config.dbname}/{IMAGE_FOLDER}/{tag}/{config.town}_{config.tag}_{frame_id}.png"
     if tag == "seg":
         image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
     else:
@@ -99,6 +98,7 @@ def set_autonom_car(world, config : Config, tm_port):
     else:
         lights = carla.VehicleLightState.NONE
 
+    max_speed = 100 - config.speed
     i = 0
     nb_model = len(config.getVehicleId())
     for spawn in spawn_list:
@@ -107,6 +107,7 @@ def set_autonom_car(world, config : Config, tm_port):
         vehicle = world.spawn_actor(vehicle_bp, spawn)
         vehicle.set_light_state(lights)
         vehicle.set_autopilot(True, tm_port)
+        traffic_manager.vehicle_percentage_speed_difference(vehicle, max_speed)
         vehicle_list[i] = vehicle
         i += 1
 
