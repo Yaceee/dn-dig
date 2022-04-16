@@ -1,4 +1,5 @@
-_DAY/*
-_NIGHT/*
+*.png
+*.txt
 test/*
 sources/__pycache__/*
+sources/node_modules

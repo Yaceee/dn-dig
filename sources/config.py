@@ -52,6 +52,10 @@ class Config:
 		self.vehicle_id = vehicle_id
 		self.speed = 100
 		self.tag = 'a'
+		self.fps = 1
+		self.position = [2.5, 0, 0.7]
+		self.rotation = [0, 0, 0]
+		self.dbname = "DB_test"
 
 	def getHost(self):
 		return self.host

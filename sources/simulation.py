@@ -47,7 +47,7 @@ def simulation(config : Config):
         dn.set_weather(world, config)
 
         # set traffic and pick the first car
-        vehicle_list = dn.set_autonom_car(world, config, TM_PORT)
+        vehicle_list = dn.set_autonom_car(world, config,traffic_manager , TM_PORT)
         vehicle = vehicle_list[0]
         traffic_manager.ignore_lights_percentage(vehicle, 100)
 
@@ -66,7 +66,7 @@ def simulation(config : Config):
         #
         world.tick()
         print(f"Recording {dn.IMAGE_FOLDER} images")
-        for dn.frame_id in tqdm(range(1, config.number+1)):
+        for dn.frame_id in tqdm(range(1, config.imNum+1)):
             try:
                 for _ in range(len(sensor_list)):
                     sensor_queue.get(block=True, timeout=5)
@@ -150,7 +150,7 @@ if __name__ == '__main__':
         help='Image dimension (default: [1920, 1080])'
     )
     argparser.add_argument(
-        '--number', '-N',
+        '--imNum', '-N',
         default=100,
         type=int,
         help='Number of image (default: 100)'
@@ -183,7 +183,7 @@ if __name__ == '__main__':
     )
 
     config = argparser.parse_args()
-    conf_obj = Config(config.host, config.port, config.tag, config.town, config.fov, config.dimension[0], config.dimension[1], config.number, config.angle, config.traffic, config.speed)
+    conf_obj = Config(config.host, config.port, config.tag, config.town, config.fov, config.dimension[0], config.dimension[1], config.imNum, config.angle, config.traffic, config.speed)
 
     simulation(conf_obj)
 
