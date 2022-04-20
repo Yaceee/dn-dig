@@ -2,3 +2,4 @@ _DAY/*
 _NIGHT/*
 test/*
 sources/__pycache__/*
+sources/node_modules/*
