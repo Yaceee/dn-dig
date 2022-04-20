@@ -13,70 +13,70 @@ def simulation(config : Config):
         # INITIALIZATION
         #
         # client
-        print(config)
         client = dn.carla.Client(config.getHost(), config.getPort())
         client.set_timeout(10.0)
 
-        # load the specified world
-        try:
-            world = client.load_world(config.town)
-        except RuntimeError:
-            print(f"{config.town} not found, use the current world")
-            world = client.get_world()
-
-        # set world mode to synchronous
-        delta_sec = 0.1
-        world.apply_settings(dn.carla.WorldSettings(
-                                synchronous_mode=True,
-                                no_rendering_mode=False,
-                                fixed_delta_seconds=delta_sec)
-                             )
-
-        # Set up the traffic manager
-        TM_PORT = 8000
-        try:
-            traffic_manager = client.get_trafficmanager(TM_PORT)
-        except RuntimeError:
-            TM_PORT += 1
-            traffic_manager = client.get_trafficmanager(TM_PORT)
-        traffic_manager.set_synchronous_mode(True)
-        traffic_manager.set_random_device_seed(1)
-
-        # weather
-        dn.IMAGE_FOLDER = "DAY" if config.angle >= 0 else "NIGHT"
-        dn.set_weather(world, config)
-
-        # set traffic and pick the first car
-        vehicle_list = dn.set_autonom_car(world, config,traffic_manager , TM_PORT)
-        vehicle = vehicle_list[0]
-        traffic_manager.ignore_lights_percentage(vehicle, 100)
-
-        # attach cameras to the vehicle
-        sensor_list = []
-        sensor_queue = Queue()
-
-        cam_seg = dn.camera_init("seg", world, vehicle, sensor_queue, config)
-        cam_rgb = dn.camera_init("rgb", world, vehicle, sensor_queue, config)
-
-        sensor_list.append(cam_seg)
-        sensor_list.append(cam_rgb)
-
-        # ---------------------------------------------------------------------
-        # SIMULATION
-        #
-        world.tick()
-        print(f"Recording {dn.IMAGE_FOLDER} images")
-        for dn.frame_id in tqdm(range(1, config.imNum+1)):
+        for town in config.towns:
+            # load the specified world
             try:
-                for _ in range(len(sensor_list)):
-                    sensor_queue.get(block=True, timeout=5)
-            except Empty:
-                print("Sensor error")
+                world = client.load_world(town)
+            except RuntimeError:
+                print(f"{town} not found, go to the next one")
                 continue
-            for _ in range(int(config.fps/delta_sec)):
-                world.tick()
-        #
-        # ---------------------------------------------------------------------
+
+            # set world mode to synchronous
+            delta_sec = 0.1
+            world.apply_settings(dn.carla.WorldSettings(
+                                    synchronous_mode=True,
+                                    no_rendering_mode=False,
+                                    fixed_delta_seconds=delta_sec)
+                                 )
+
+            # Set up the traffic manager
+            TM_PORT = 8000
+            try:
+                traffic_manager = client.get_trafficmanager(TM_PORT)
+            except RuntimeError:
+                TM_PORT += 1
+                traffic_manager = client.get_trafficmanager(TM_PORT)
+            traffic_manager.set_synchronous_mode(True)
+            traffic_manager.set_random_device_seed(1)
+
+            # weather
+            dn.IMAGE_FOLDER = "DAY" if config.angle >= 0 else "NIGHT"
+            dn.set_weather(world, config)
+
+            # set traffic and pick the first car
+            vehicle_list = dn.set_autonom_car(world, config,traffic_manager , TM_PORT)
+            vehicle = vehicle_list[0]
+            traffic_manager.ignore_lights_percentage(vehicle, 100)
+
+            # attach cameras to the vehicle
+            sensor_list = []
+            sensor_queue = Queue()
+
+            cam_seg = dn.camera_init("seg", world, town, vehicle, sensor_queue, config)
+            cam_rgb = dn.camera_init("rgb", world, town, vehicle, sensor_queue, config)
+
+            sensor_list.append(cam_seg)
+            sensor_list.append(cam_rgb)
+
+            # -----------------------------------------------------------------
+            # SIMULATION
+            #
+            world.tick()
+            print(f"Recording {dn.IMAGE_FOLDER} images from {town}")
+            for dn.frame_id in tqdm(range(1, config.imNum+1)):
+                try:
+                    for _ in range(len(sensor_list)):
+                        sensor_queue.get(block=True, timeout=5)
+                except Empty:
+                    print("Sensor error")
+                    continue
+                for _ in range(int(config.fps/delta_sec)):
+                    world.tick()
+            #
+            # -----------------------------------------------------------------
 
     # -------------------------------------------------------------------------
     # CLEANING
@@ -119,10 +119,8 @@ if __name__ == '__main__':
     )
     argparser.add_argument(
         '--town', '-t',
-        default='town01',
-        choices=['town01', 'town02', 'town03', 'town04',
-                 'town05', 'town06', 'town07', 'town10HD'],
-        help='Selected town (default: town01)'
+        default='1',
+        help='Deprecated !'
     )
     argparser.add_argument(
         '--speed', '-s',

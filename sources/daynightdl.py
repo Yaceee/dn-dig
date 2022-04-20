@@ -32,7 +32,7 @@ VEHICLE_ID = ["a2", "impala", "c3", "microlino", "charger_police", "tt", "wrangl
               "charger_police_2020", "sprinter", "etron", "leon", "t2_2021", "cybertruck", "mkz_2017", "mustang", "carlamotors", "volkswagen", "tesla", "century", "omafiets", "grandtourer", "crossbike", "ninja", "yzf", "patrol", "micra", "cooper_s"]
 
 
-def camera_init(tag, world, vehicle, queue, config):
+def camera_init(tag, world, town, vehicle, queue, config):
     # config the blueprint
     blueprint_lib = world.get_blueprint_library()
     if tag == "seg":
@@ -62,13 +62,13 @@ def camera_init(tag, world, vehicle, queue, config):
     camera = world.spawn_actor(camera_bp, spawn_point, attach_to=vehicle)
 
     # camera action defined by the sensor callback
-    camera.listen(lambda data: sensor_callback(data, queue, tag, config))
+    camera.listen(lambda data: sensor_callback(data, queue, town, tag, config))
 
     return camera
 
 
-def sensor_callback(image, sensor_queue, tag, config):
-    path = f"../{config.dbname}/{IMAGE_FOLDER}/{tag}/{config.town}_{config.tag}_{frame_id}.png"
+def sensor_callback(image, sensor_queue, town, tag, config):
+    path = f"../{config.dbname}/{IMAGE_FOLDER}/{tag}/{town}_{config.tag}_{frame_id}.png"
     if tag == "seg":
         image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
     else:
