@@ -1,11 +1,10 @@
 import re
 import numpy as np
 import matplotlib.pyplot as plt
-import config as conf
-from os import path, listdir
+from os import listdir
 from tqdm import tqdm
 
-PATH_FOLDER = f"../DB_2000/"
+PATH_FOLDER = "../DB_C/DB_50/"
 PATH_DAY = "DAY/seg/"
 PATH_NIGHT = "NIGHT/seg/"
 SCORE_FILE = "score.txt"
@@ -68,7 +67,8 @@ def evaluation(id_days, id_nights):
 
     for i in tqdm(range(N)):
         im_day = plt.imread(PATH_FOLDER + PATH_DAY + id_days[i])[:, :, 0:3]
-        im_night = plt.imread(PATH_FOLDER + PATH_NIGHT + id_nights[i])[:, :, 0:3]
+        im_night = plt.imread(PATH_FOLDER + PATH_NIGHT
+                              + id_nights[i])[:, :, 0:3]
         scores[i] = score_im(im_day, im_night)
 
     return scores

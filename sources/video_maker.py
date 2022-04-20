@@ -3,6 +3,7 @@ from tqdm import tqdm
 from os.path import join
 from glob import glob
 import re
+import argparse
 
 
 def get_images_path(dir):
@@ -14,29 +15,48 @@ def get_images_path(dir):
     return sorted(glob(join(dir, "*.png")), key=alphanum_key)
 
 
-width = 1920
-height = 1080
-fps = 20
+def main(arg):
+    Vwidth = 1920
+    Iwidth = 640
+    height = 1080
 
-day_files = get_images_path("DB_video/DAY/rgb")
-seg_files = get_images_path("DB_video/DAY/seg")
-ngt_files = get_images_path("DB_video/NIGHT/rgb")
+    day_files = get_images_path(arg.database + "DAY/rgb")
+    seg_files = get_images_path(arg.database + "DAY/seg")
+    ngt_files = get_images_path(arg.database + "NIGHT/rgb")
+
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    video = cv2.VideoWriter(arg.database + "video.avi",
+                            fourcc, arg.fps, (Vwidth, height))
+
+    for i in tqdm(range(1, len(day_files))):
+        day = cv2.imread(day_files[i])
+        ngt = cv2.imread(ngt_files[i])
+        seg = cv2.imread(seg_files[i])
+
+        ngt = cv2.resize(ngt, (Iwidth, height))
+        day = cv2.resize(day, (Iwidth, height))
+        seg = cv2.resize(seg, (Iwidth, height))
+
+        img = cv2.hconcat([day, seg, ngt])
+        video.write(img)
+
+    cv2.destroyAllWindows()
+    video.release()
 
 
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-video = cv2.VideoWriter('video.avi', fourcc, fps, (width, height))
+if __name__ == "__main__":
+    argparser = argparse.ArgumentParser(description=__doc__)
+    argparser.add_argument(
+        '--database', '-db',
+        default='./DB',
+        help='Path to the DB (default: ./DB)'
+    )
+    argparser.add_argument(
+        '-fps',
+        default='20',
+        type=int,
+        help='Frame per seconds (default: 20)'
+    )
+    arg = argparser.parse_args()
 
-for i in tqdm(range(1, len(day_files))):
-    day = cv2.imread(day_files[i])
-    ngt = cv2.imread(ngt_files[i])
-    seg = cv2.imread(seg_files[i])
-
-    ngt = cv2.resize(ngt, (640, height))
-    day = cv2.resize(day, (640, height))
-    seg = cv2.resize(seg, (640, height))
-
-    img = cv2.hconcat([day, seg, ngt])
-    video.write(img)
-
-cv2.destroyAllWindows()
-video.release()
+    main(arg)
