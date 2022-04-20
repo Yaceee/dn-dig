@@ -16,9 +16,11 @@ def startSimulationThreads(configDay : Config, configNight : Config):
     t_day = SimThread(configDay)
     t_night = SimThread(configNight)
 
+    print("start Day Sim")
     t_day.start()
-    t_night.start()
-
     t_day.join()
+    
+    print("start Night Sim")
+    t_night.start()
     t_night.join()
 
