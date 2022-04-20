@@ -24,6 +24,8 @@ TRAFFIC = 10
 
 SIM_ID = 0
 
+SPEED = 100  # max speed (from 0 to 100)
+
 
 class Config:
 
@@ -35,7 +37,7 @@ class Config:
 
 	VEHICLE_ID = ["a2", "impala", "c3", "microlino", "charger_police", "tt", "wrangler_rubicon", "coupe", "coupe_2020", "low_rider", "charger_2020", "ambulance", "mkz_2020", "mini", "prius", "crown", "carlacola", "zx125", "nissan", "charger_police_2020", "sprinter", "etron", "leon", "t2_2021", "cybertruck", "mkz_2017", "mustang", "carlamotors", "volkswagen", "tesla", "century", "omafiets", "grandtourer", "crossbike", "ninja", "yzf", "patrol", "micra", "cooper_s"]
 
-	def __init__(self, host=HOST, port=PORT, sim=SIM_ID, town=TOWN_ID, fov=IM_FOV, width=IM_WIDTH, height=IM_HEIGHT, imNum=IM_NUMBER, angle=ANGLE_DAY, traffic=TRAFFIC, vehicle_id=VEHICLE_ID):
+	def __init__(self, host=HOST, port=PORT, sim=SIM_ID, town=TOWN_ID, fov=IM_FOV, width=IM_WIDTH, height=IM_HEIGHT, imNum=IM_NUMBER, angle=ANGLE_DAY, traffic=TRAFFIC, vehicle_id=VEHICLE_ID, speed=SPEED):
 		self.host = host
 		self.port = port
 		self.sim = sim
@@ -43,12 +45,17 @@ class Config:
 		self.fov = int(fov)
 		self.width = int(width)
 		self.height = int(height)
+		self.dimension = [width, height]
 		self.imNum = int(imNum)
 		self.angle = int(angle)
 		self.traffic = int(traffic)
 		self.vehicle_id = vehicle_id
 		self.speed = 100
 		self.tag = 'a'
+		self.fps = 1
+		self.position = [2.5, 0, 0.7]
+		self.rotation = [0, 0, 0]
+		self.dbname = "DB_test"
 
 	def getHost(self):
 		return self.host
@@ -76,7 +83,7 @@ class Config:
 
 	def getTraffic(self):
 		return self.traffic
-	
+
 	def getVehicleId(self):
 		return self.vehicle_id
 
@@ -105,4 +112,4 @@ def confFromJSON(json : JSON):
 	return (confDay, confNight)
 
 globalConf = Config(HOST, PORT, SIM_ID, TOWN_ID, IM_FOV, IM_WIDTH, IM_HEIGHT, IM_NUMBER,
-					ANGLE_DAY, TRAFFIC, Config.VEHICLE_ID)
+					ANGLE_DAY, TRAFFIC, Config.VEHICLE_ID, SPEED)

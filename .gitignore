@@ -1,5 +1,9 @@
-_DAY/*
-_NIGHT/*
+*.png
+*.txt
 test/*
 sources/__pycache__/*
+<<<<<<< HEAD
 sources/node_modules/*
+=======
+sources/node_modules
+>>>>>>> c21cd5a0e4693d23f394cc3bb89e3eb99e28261b

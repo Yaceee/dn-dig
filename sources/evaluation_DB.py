@@ -1,11 +1,10 @@
 import re
 import numpy as np
 import matplotlib.pyplot as plt
-import config as conf
 from os import path, listdir
 from tqdm import tqdm
 
-PATH_FOLDER = f"../DB_2000/"
+PATH_FOLDER = f"../DB_fps_0d8/"
 PATH_DAY = "DAY/seg/"
 PATH_NIGHT = "NIGHT/seg/"
 SCORE_FILE = "score.txt"
