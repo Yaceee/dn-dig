@@ -7,7 +7,7 @@ from queue import Queue, Empty
 from time import sleep
 
 
-def simulation(config : Config):
+def simulation(config: Config, seed: int):
     try:
         # ---------------------------------------------------------------------
         # INITIALIZATION
@@ -40,14 +40,15 @@ def simulation(config : Config):
                 TM_PORT += 1
                 traffic_manager = client.get_trafficmanager(TM_PORT)
             traffic_manager.set_synchronous_mode(True)
-            traffic_manager.set_random_device_seed(1)
+            traffic_manager.set_random_device_seed(seed)
 
             # weather
             dn.IMAGE_FOLDER = "DAY" if config.angle >= 0 else "NIGHT"
             dn.set_weather(world, config)
 
             # set traffic and pick the first car
-            vehicle_list = dn.set_autonom_car(world, config,traffic_manager , TM_PORT)
+            vehicle_list = dn.set_autonom_car(
+                world, config, traffic_manager, TM_PORT)
             vehicle = vehicle_list[0]
             traffic_manager.ignore_lights_percentage(vehicle, 100)
 
@@ -55,8 +56,10 @@ def simulation(config : Config):
             sensor_list = []
             sensor_queue = Queue()
 
-            cam_seg = dn.camera_init("seg", world, town, vehicle, sensor_queue, config)
-            cam_rgb = dn.camera_init("rgb", world, town, vehicle, sensor_queue, config)
+            cam_seg = dn.camera_init(
+                "seg", world, town, vehicle, sensor_queue, config)
+            cam_rgb = dn.camera_init(
+                "rgb", world, town, vehicle, sensor_queue, config)
 
             sensor_list.append(cam_seg)
             sensor_list.append(cam_rgb)
@@ -179,10 +182,16 @@ if __name__ == '__main__':
         default=[0, 0, 0],
         help='(roll,yaw,pitch) camera rotation (default: [0, 0, 0])'
     )
+    argparser.add_argument(
+        '--seed',
+        type=int,
+        default=1,
+        help='Seed to initialize random sequences'
+    )
 
     config = argparser.parse_args()
     conf_obj = Config(config.host, config.port, config.tag, config.town, config.fov, config.dimension[0], config.dimension[1], config.imNum, config.angle, config.traffic, config.speed)
 
-    simulation(conf_obj)
+    simulation(conf_obj, config.seed)
 
     sleep(2)  # allow time to save the last image
