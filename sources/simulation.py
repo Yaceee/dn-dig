@@ -1,7 +1,8 @@
 import daynightdl as dn
 import argparse
-from config import Config
+import numpy as np
 
+from config import Config
 from tqdm import tqdm
 from queue import Queue, Empty
 from time import sleep
@@ -53,25 +54,21 @@ def simulation(config: Config, seed: int):
 
         # attach cameras to the vehicle
         sensor_list = []
-        sensor_queue = Queue()
+        semaphore = Queue()
 
-        main_cam_sets = dn.CamSettings(id="a")
-        heli_cam_sets = dn.CamSettings(id="h", z=10, pitch=-20)
+        sensor_settings = [dn.CamSettings(id="f"),
+                           dn.CamSettings(id="h", x=5, z=10, pitch=-40),
+                           dn.CamSettings(id="r", y=5, x=4, z=2, yaw=90),
+                           dn.CamSettings(id="l", y=-8,x=4, z=2, yaw=-90)]
 
-        cam_seg1 = dn.camera_init(
-            "seg", world, town, vehicle, sensor_queue, main_cam_sets, config)
-        cam_rgb1 = dn.camera_init(
-            "rgb", world, town, vehicle, sensor_queue, main_cam_sets, config)
-        cam_seg2 = dn.camera_init(
-            "seg", world, town, vehicle, sensor_queue, heli_cam_sets, config)
-        cam_rgb2 = dn.camera_init(
-            "rgb", world, town, vehicle, sensor_queue, heli_cam_sets, config)
+        for setting in sensor_settings:
+            cam_rgb = dn.camera_init("rgb", world, town, vehicle, semaphore,
+                                     setting, config)
+            cam_seg = dn.camera_init("seg", world, town, vehicle, semaphore,
+                                     setting, config)
 
-        sensor_list.append(cam_seg1)
-        sensor_list.append(cam_rgb1)
-
-        sensor_list.append(cam_seg2)
-        sensor_list.append(cam_rgb2)
+            sensor_list.append(cam_rgb)
+            sensor_list.append(cam_seg)
 
         # -----------------------------------------------------------------
         # SIMULATION
@@ -79,9 +76,10 @@ def simulation(config: Config, seed: int):
         world.tick()
         print(f"Recording {dn.IMAGE_FOLDER} images from {town}")
         for dn.frame_id in tqdm(range(1, config.imNum+1)):
+            dn.velocity = vehicle.get_velocity().x**2 + vehicle.get_velocity().y**2  + vehicle.get_velocity().z**2
             try:
                 for _ in range(len(sensor_list)):
-                    sensor_queue.get(block=True, timeout=5)
+                    semaphore.get(block=True, timeout=5)
             except Empty:
                 print("Sensor error")
                 continue

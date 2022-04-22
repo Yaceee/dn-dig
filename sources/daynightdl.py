@@ -27,6 +27,7 @@ import carla
 
 IMAGE_FOLDER = None
 frame_id = None
+velocity = None
 
 VEHICLE_ID = ["a2", "impala", "c3", "microlino", "charger_police", "tt", "wrangler_rubicon", "coupe", "coupe_2020", "low_rider", "charger_2020", "ambulance", "mkz_2020", "mini", "prius", "crown", "carlacola", "zx125", "nissan",
               "charger_police_2020", "sprinter", "etron", "leon", "t2_2021", "cybertruck", "mkz_2017", "mustang", "carlamotors", "volkswagen", "tesla", "century", "omafiets", "grandtourer", "crossbike", "ninja", "yzf", "patrol", "micra", "cooper_s"]
@@ -98,14 +99,17 @@ def camera_init(tag, world, town, vehicle, queue, cam_settings, config):
     return camera
 
 
-def sensor_callback(image, sensor_queue, town, dbname, tag, id):
+def sensor_callback(image, semaphore, town, dbname, tag, id):
     path = f"../{dbname}/{IMAGE_FOLDER}/{tag}/{town}_{id}_{frame_id}.png"
-    if tag == "seg":
-        image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
-    else:
-        image.save_to_disk(path)
 
-    sensor_queue.put((image.frame, image))
+    # to do, le compteur continue de s'incrémenter
+    if velocity > 0.1:
+        if tag == "seg":
+            image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
+        else:
+            image.save_to_disk(path)
+
+    semaphore.put((image.frame, image))
 
 
 def set_weather(world, config):
