@@ -1,10 +1,11 @@
 import re
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 from os import listdir
 from tqdm import tqdm
 
-PATH_FOLDER = "../DB_C/DB_50/"
+PATH_FOLDER = "DB_test"
 PATH_DAY = "DAY/seg/"
 PATH_NIGHT = "NIGHT/seg/"
 SCORE_FILE = "score.txt"
@@ -101,6 +102,16 @@ def write_score(scores, id):
 
 
 if __name__ == "__main__":
+    argparser = argparse.ArgumentParser(description=__doc__)
+    argparser.add_argument(
+        '--dbname', '-db',
+        default='DB_test/',
+        help='DB name to evaluate (default: DB_test)'
+    )
+    args = argparser.parse_args()
+
+    PATH_FOLDER = "../" + args.dbname + "/"
+
     id_days = sorted_alphanumeric(listdir(PATH_FOLDER + PATH_DAY))
     id_nights = sorted_alphanumeric(listdir(PATH_FOLDER + PATH_NIGHT))
 

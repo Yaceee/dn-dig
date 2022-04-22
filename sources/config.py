@@ -11,6 +11,7 @@ import json as JSON
 HOST = "localhost"
 PORT = 2000
 
+DBNAME = "DB_test"
 TOWN_ID = 8
 
 IM_FOV = 110  # field of view
@@ -21,6 +22,11 @@ IM_NUMBER = 100  # number of scenes to generate
 ANGLE_DAY = 70
 ANGLE_NIGHT = -179
 TRAFFIC = 10
+
+POSITION = [2.5, 0, 0.7]
+ROTATION = [0, 0, 0]
+
+TAG = "a"
 
 SIM_ID = 0
 
@@ -37,7 +43,7 @@ class Config:
 
 	VEHICLE_ID = ["a2", "impala", "c3", "microlino", "charger_police", "tt", "wrangler_rubicon", "coupe", "coupe_2020", "low_rider", "charger_2020", "ambulance", "mkz_2020", "mini", "prius", "crown", "carlacola", "zx125", "nissan", "charger_police_2020", "sprinter", "etron", "leon", "t2_2021", "cybertruck", "mkz_2017", "mustang", "carlamotors", "volkswagen", "tesla", "century", "omafiets", "grandtourer", "crossbike", "ninja", "yzf", "patrol", "micra", "cooper_s"]
 
-	def __init__(self, host=HOST, port=PORT, sim=SIM_ID, town=TOWN_ID, fov=IM_FOV, width=IM_WIDTH, height=IM_HEIGHT, imNum=IM_NUMBER, angle=ANGLE_DAY, traffic=TRAFFIC, vehicle_id=VEHICLE_ID, speed=SPEED):
+	def __init__(self, host=HOST, port=PORT, dbname=DBNAME, sim=SIM_ID, town=TOWN_ID, fov=IM_FOV, width=IM_WIDTH, height=IM_HEIGHT, imNum=IM_NUMBER, tag=TAG, angle=ANGLE_DAY, traffic=TRAFFIC, position=POSITION, rotation=ROTATION, vehicle_id=VEHICLE_ID, speed=SPEED):
 		self.host = host
 		self.port = port
 		self.sim = sim
@@ -47,15 +53,15 @@ class Config:
 		self.height = int(height)
 		self.dimension = [width, height]
 		self.imNum = int(imNum)
+		self.tag = tag
 		self.angle = int(angle)
 		self.traffic = int(traffic)
 		self.vehicle_id = vehicle_id
 		self.speed = 100
-		self.tag = 'a'
 		self.fps = 1
-		self.position = [2.5, 0, 0.7]
-		self.rotation = [0, 0, 0]
-		self.dbname = "DB_test"
+		self.position = position
+		self.rotation = rotation
+		self.dbname = dbname
 
 	def getHost(self):
 		return self.host
@@ -77,6 +83,15 @@ class Config:
 
 	def getImNum(self):
 		return self.imNum
+
+	def getTag(self):
+		return self.tag
+
+	def getPosition(self):
+		return self.position
+
+	def getRotation(self):
+		return self.rotation
 
 	def getAngle(self):
 		return int(self.angle)
@@ -102,14 +117,14 @@ class Config:
 def confFromJSON(json : JSON):
 	decoded = json
 
-	confDay = Config(decoded['host'], decoded['port'],SIM_ID , decoded['town'], decoded['fov'],
-	decoded['width'], decoded['height'], decoded['imNum'], decoded['day'],
-	decoded['traffic'], Config.VEHICLE_ID)
+	confDay = Config(decoded['host'], decoded['port'], DBNAME, SIM_ID , decoded['town'], decoded['fov'],
+	decoded['width'], decoded['height'], decoded['imNum'], TAG, decoded['day'],
+	decoded['traffic'], POSITION, ROTATION, Config.VEHICLE_ID)
 
-	confNight = Config(decoded['host'], decoded['port'],SIM_ID , decoded['town'], decoded['fov'],
-	decoded['width'], decoded['height'], decoded['imNum'], decoded['night'],
-	decoded['traffic'], Config.VEHICLE_ID)
+	confNight = Config(decoded['host'], decoded['port'],DBNAME, SIM_ID , decoded['town'], decoded['fov'],
+	decoded['width'], decoded['height'], decoded['imNum'], TAG, decoded['night'],
+	decoded['traffic'], POSITION, ROTATION, Config.VEHICLE_ID)
 	return (confDay, confNight)
 
-globalConf = Config(HOST, PORT, SIM_ID, TOWN_ID, IM_FOV, IM_WIDTH, IM_HEIGHT, IM_NUMBER,
-					ANGLE_DAY, TRAFFIC, Config.VEHICLE_ID, SPEED)
+globalConf = Config(HOST, PORT, DBNAME, SIM_ID, TOWN_ID, IM_FOV, IM_WIDTH, IM_HEIGHT, IM_NUMBER, TAG,
+					ANGLE_DAY, TRAFFIC, POSITION, ROTATION, Config.VEHICLE_ID, SPEED)
