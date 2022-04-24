@@ -16,6 +16,7 @@ def simulation(config: Config, seed: int):
     client = dn.carla.Client(config.getHost(), config.getPort())
     client.set_timeout(10.0)
 
+    pbar = tqdm(total=config.imNum)  # progression bar displayed
     for town in config.towns:
         # load the specified world
         try:
@@ -74,17 +75,28 @@ def simulation(config: Config, seed: int):
         # SIMULATION
         #
         world.tick()
-        print(f"Recording {dn.IMAGE_FOLDER} images from {town}")
-        for dn.frame_id in tqdm(range(1, config.imNum+1)):
-            dn.velocity = vehicle.get_velocity().x**2 + vehicle.get_velocity().y**2  + vehicle.get_velocity().z**2
+        dn.frame_id = 1
+        pbar.set_description(town)
+        pbar.reset()
+        while dn.frame_id < config.imNum+1:
+            dn.velocity = vehicle.get_velocity().length()
+            # Save images (need dn.velocity updated before)
             try:
                 for _ in range(len(sensor_list)):
                     semaphore.get(block=True, timeout=5)
             except Empty:
                 print("Sensor error")
                 continue
-            for _ in range(round(1/delta_sec)):  # 1 => sensor tick
-                world.tick()
+
+            # Update progress bar
+            if dn.velocity > dn.MIN_VELOCITY:
+                dn.frame_id += 1
+                pbar.update()
+
+            # Allow the server to generate the next scene
+            [world.tick() for _ in range(round(1/delta_sec))]
+
+        pbar.close()
         #
         # -----------------------------------------------------------------
         sleep(2)  # allow time to save the last image
