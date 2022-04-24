@@ -103,7 +103,6 @@ def camera_init(tag, world, town, vehicle, queue, cam_settings, config):
 def sensor_callback(image, semaphore, town, dbname, tag, id):
     path = f"../{dbname}/{IMAGE_FOLDER}/{tag}/{town}_{id}_{frame_id}.png"
 
-    # to do, le compteur continue de s'incrémenter
     if velocity > MIN_VELOCITY:
         if tag == "seg":
             image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
