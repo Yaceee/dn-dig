@@ -1,5 +1,9 @@
 *.png
 *.txt
+*.zip
+*.avi
+*.mp4
 test/*
 sources/__pycache__/*
 sources/node_modules
+sources/examples/*
