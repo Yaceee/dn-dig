@@ -26,8 +26,6 @@ def sorted_alphanumeric(data):
 
 
 def check_pair(id_days, id_nights):
-    print("Checking pairs...")
-
     Nd = len(id_days)
     Nn = len(id_nights)
     mismatch = 0
@@ -44,9 +42,6 @@ def check_pair(id_days, id_nights):
             )
             mismatch = 1
 
-    if not mismatch:
-        print("All pairs are well named")
-
     return 0
 
 
@@ -61,16 +56,18 @@ def score_im(day, night):
 
 
 def evaluation(id_days, id_nights):
-    print("Evaluation of the dataset...")
-
     N = len(id_days)
     scores = np.zeros(N, dtype=float)
 
-    for i in tqdm(range(N)):
+    pbar = tqdm(total=N)  # progression bar displayed
+    pbar.set_description("DB evaluation")
+
+    for i in range(N):
         im_day = plt.imread(PATH_FOLDER + PATH_DAY + id_days[i])[:, :, 0:3]
         im_night = plt.imread(PATH_FOLDER + PATH_NIGHT
                               + id_nights[i])[:, :, 0:3]
         scores[i] = score_im(im_day, im_night)
+        pbar.update()
 
     return scores
 

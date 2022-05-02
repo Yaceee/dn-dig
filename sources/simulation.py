@@ -20,6 +20,8 @@ def simulation(config: Config, seed: int):
     for town in config.towns:
         # load the specified world
         try:
+            pbar.set_description("init...")
+            pbar.reset()
             world = client.load_world(town)
         except RuntimeError:
             print(f"Can not load {town} on the server, try next one")
@@ -76,9 +78,9 @@ def simulation(config: Config, seed: int):
         #
         world.tick()
         dn.frame_id = 1
-        pbar.set_description(town)
-        pbar.reset()
-        while dn.frame_id < config.imNum+1:
+        pbar.set_description(town[0:6])  # town10HD => town10
+        pbar.update()
+        while dn.frame_id < config.imNum:
             dn.velocity = vehicle.get_velocity().length()
             # Save images (need dn.velocity updated before)
             try:
@@ -96,7 +98,6 @@ def simulation(config: Config, seed: int):
             # Allow the server to generate the next scene
             [world.tick() for _ in range(round(1/delta_sec))]
 
-        pbar.close()
         #
         # -----------------------------------------------------------------
         sleep(2)  # allow time to save the last image
@@ -108,8 +109,14 @@ def simulation(config: Config, seed: int):
             sensor.stop()
             sensor.destroy()
         for vehicle in vehicle_list:
-            vehicle.destroy()
+            try:
+                vehicle.destroy()
+            except RuntimeError:  # vehicle already destroyed
+                pass
+
         world.apply_settings(dn.carla.WorldSettings(False, False, 0))
+
+    pbar.close()
 
 if __name__ == '__main__':
     argparser = argparse.ArgumentParser(description=__doc__)

@@ -11,3 +11,4 @@ documentation/img/*
 sources/__pycache__/*
 sources/node_modules
 sources/examples/*
+sources/test/*
