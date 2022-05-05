@@ -20,12 +20,12 @@ def main(arg):
     Iwidth = 640
     height = 1080
 
-    day_files = get_images_path(arg.database + "DAY/rgb")
-    seg_files = get_images_path(arg.database + "DAY/seg")
-    ngt_files = get_images_path(arg.database + "NIGHT/rgb")
+    day_files = get_images_path("../" + arg.dbname + "/DAY/rgb")
+    seg_files = get_images_path("../" + arg.dbname + "/DAY/seg")
+    ngt_files = get_images_path("../" + arg.dbname + "/NIGHT/rgb")
 
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    video = cv2.VideoWriter(arg.database + "video.avi",
+    video = cv2.VideoWriter("../" + arg.dbname + "/video.avi",
                             fourcc, arg.fps, (Vwidth, height))
 
     for i in tqdm(range(1, len(day_files))):
@@ -47,12 +47,12 @@ def main(arg):
 if __name__ == "__main__":
     argparser = argparse.ArgumentParser(description=__doc__)
     argparser.add_argument(
-        '--database', '-db',
+        '--dbname', '-db',
         default='./DB',
         help='Path to the DB (default: ./DB)'
     )
     argparser.add_argument(
-        '-fps',
+        '--fps', '-fps',
         default='20',
         type=int,
         help='Frame per seconds (default: 20)'

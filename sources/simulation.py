@@ -16,106 +16,101 @@ def simulation(config: Config, seed: int):
     client = dn.carla.Client(config.getHost(), config.getPort())
     client.set_timeout(10.0)
 
+    # set world mode to synchronous
+
     pbar = tqdm(total=config.imNum)  # progression bar displayed
-    for town in config.towns:
-        # load the specified world
+    # load the specified world
+    try:
+        pbar.set_description("init...")
+        pbar.reset()
+        delta_sec = 0.1  # delta_sec <= 0.1 (github issue #695)
+        world = client.get_world()
+        world = client.load_world(config.town)
+        world.apply_settings(dn.carla.WorldSettings(True, False, delta_sec))
+    except RuntimeError:
+        print(f"Can not load {config.town} on the server")
+        return -1
+
+    # Set up the traffic manager
+    TM_PORT = 8000
+    try:
+        traffic_manager = client.get_trafficmanager(TM_PORT)
+    except RuntimeError:
+        TM_PORT += 1
+        traffic_manager = client.get_trafficmanager(TM_PORT)
+    traffic_manager.set_synchronous_mode(True)
+    traffic_manager.set_random_device_seed(seed)
+
+    # weather
+    dn.IMAGE_FOLDER = "DAY" if config.angle >= 0 else "NIGHT"
+    dn.set_weather(world, config)
+
+    # set traffic and pick the first car
+    vehicle_list = dn.set_autonom_car(
+        world, config, traffic_manager, TM_PORT)
+    vehicle = vehicle_list[0]
+    traffic_manager.ignore_lights_percentage(vehicle, 100)
+
+    # attach cameras to the vehicle
+    sensor_list = []
+    semaphore = Queue()
+
+    sensor_settings = [dn.CamSettings(id="f"),
+                       dn.CamSettings(id="h", x=5, z=10, pitch=-40),
+                       dn.CamSettings(id="r", y=5, x=4, z=2, yaw=90),
+                       dn.CamSettings(id="l", y=-8,x=4, z=2, yaw=-90)]
+
+    for setting in sensor_settings:
+        cam_rgb = dn.camera_init("rgb", world, vehicle, semaphore,
+                                 setting, config)
+        cam_seg = dn.camera_init("seg", world, vehicle, semaphore,
+                                 setting, config)
+
+        sensor_list.append(cam_rgb)
+        sensor_list.append(cam_seg)
+
+    # -----------------------------------------------------------------
+    # SIMULATION
+    #
+    world.tick()
+    dn.frame_id = 1
+    pbar.set_description(config.town[0:6] + " (" + dn.IMAGE_FOLDER[0] + ")")
+    pbar.update()
+    while dn.frame_id < config.imNum:
+        # dn.velocity = vehicle.get_velocity().length()
+        # Save images (need dn.velocity updated before)
         try:
-            pbar.set_description("init...")
-            pbar.reset()
-            world = client.load_world(town)
-        except RuntimeError:
-            print(f"Can not load {town} on the server, try next one")
+            for _ in range(len(sensor_list)):
+                semaphore.get(block=True, timeout=5)
+        except Empty:
+            print("Sensor error")
             continue
 
-        # set world mode to synchronous
-        delta_sec = 0.1  # delta_sec <= 0.1 (github issue #695)
-        world.apply_settings(dn.carla.WorldSettings(
-                                synchronous_mode=True,
-                                no_rendering_mode=False,
-                                fixed_delta_seconds=delta_sec)
-                             )
-
-        # Set up the traffic manager
-        TM_PORT = 8000
-        try:
-            traffic_manager = client.get_trafficmanager(TM_PORT)
-        except RuntimeError:
-            TM_PORT += 1
-            traffic_manager = client.get_trafficmanager(TM_PORT)
-        traffic_manager.set_synchronous_mode(True)
-        traffic_manager.set_random_device_seed(seed)
-
-        # weather
-        dn.IMAGE_FOLDER = "DAY" if config.angle >= 0 else "NIGHT"
-        dn.set_weather(world, config)
-
-        # set traffic and pick the first car
-        vehicle_list = dn.set_autonom_car(
-            world, config, traffic_manager, TM_PORT)
-        vehicle = vehicle_list[0]
-        traffic_manager.ignore_lights_percentage(vehicle, 100)
-
-        # attach cameras to the vehicle
-        sensor_list = []
-        semaphore = Queue()
-
-        sensor_settings = [dn.CamSettings(id="f"),
-                           dn.CamSettings(id="h", x=5, z=10, pitch=-40),
-                           dn.CamSettings(id="r", y=5, x=4, z=2, yaw=90),
-                           dn.CamSettings(id="l", y=-8,x=4, z=2, yaw=-90)]
-
-        for setting in sensor_settings:
-            cam_rgb = dn.camera_init("rgb", world, town, vehicle, semaphore,
-                                     setting, config)
-            cam_seg = dn.camera_init("seg", world, town, vehicle, semaphore,
-                                     setting, config)
-
-            sensor_list.append(cam_rgb)
-            sensor_list.append(cam_seg)
-
-        # -----------------------------------------------------------------
-        # SIMULATION
-        #
-        world.tick()
-        dn.frame_id = 1
-        pbar.set_description(town[0:6])  # town10HD => town10
+        # Update progress bar
+        # if dn.velocity > dn.MIN_VELOCITY:
+        dn.frame_id += 1
         pbar.update()
-        while dn.frame_id < config.imNum:
-            dn.velocity = vehicle.get_velocity().length()
-            # Save images (need dn.velocity updated before)
-            try:
-                for _ in range(len(sensor_list)):
-                    semaphore.get(block=True, timeout=5)
-            except Empty:
-                print("Sensor error")
-                continue
 
-            # Update progress bar
-            if dn.velocity > dn.MIN_VELOCITY:
-                dn.frame_id += 1
-                pbar.update()
+        # Allow the server to generate the next scene
+        [world.tick() for _ in range(round(1/delta_sec))]
 
-            # Allow the server to generate the next scene
-            [world.tick() for _ in range(round(1/delta_sec))]
+    #
+    # -----------------------------------------------------------------
+    sleep(2)  # allow time to save the last image
 
-        #
-        # -----------------------------------------------------------------
-        sleep(2)  # allow time to save the last image
+    # -----------------------------------------------------------------
+    # CLEANING
+    #
+    for sensor in sensor_list:
+        sensor.stop()
+        sensor.destroy()
+    for vehicle in vehicle_list:
+        try:
+            vehicle.destroy()
+        except RuntimeError:  # vehicle already destroyed
+            pass
 
-        # -----------------------------------------------------------------
-        # CLEANING
-        #
-        for sensor in sensor_list:
-            sensor.stop()
-            sensor.destroy()
-        for vehicle in vehicle_list:
-            try:
-                vehicle.destroy()
-            except RuntimeError:  # vehicle already destroyed
-                pass
-
-        world.apply_settings(dn.carla.WorldSettings(False, False, 0))
-
+    world.apply_settings(dn.carla.WorldSettings(False, False, 0))
     pbar.close()
 
 if __name__ == '__main__':
@@ -143,8 +138,9 @@ if __name__ == '__main__':
     )
     argparser.add_argument(
         '--town',
-        default='1',
-        help='Deprecated !'
+        default='town01',
+        choices=['town01', 'town02', 'town03', 'town04', 'town05', 'town06', 'town07', 'town10HD'],
+        help='Selected town (default: town01)'
     )
     argparser.add_argument(
         '--speed', '-s',

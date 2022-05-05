@@ -47,7 +47,8 @@ class Config:
 		self.host = host
 		self.port = port
 		self.sim = sim
-		self.town = Config.towns[int(town)-1]
+		# self.town = Config.towns[int(town)-1]
+		self.town = town
 		self.fov = int(fov)
 		self.width = int(width)
 		self.height = int(height)

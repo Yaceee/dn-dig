@@ -1,14 +1,23 @@
 #!/usr/bin/env bash
 
-dbname="DB_vignette20000"
+dbname="DB_vignette_20000_reload_server"
 width="400"
 height="400"
 imNum="625"
 day="25"
-night="-175"
+sunAngles=( "25" "-175" )
+towns=( "town01" "town02" "town03" "town04" "town05" "town06" "town07" "town10HD" )
 traffic="15"
 
-python3 simulation.py --dbname $dbname --dimension $width $height --imNum $imNum --traffic $traffic --angle $day
-python3 simulation.py --dbname $dbname --dimension $width $height --imNum $imNum --traffic $traffic --angle $night
+for (( i = 0; i < ${#towns[@]}; i++ )); do
+    for (( j = 0; j < ${#sunAngles[@]}; j++ )); do
+        gnome-terminal -- /opt/carla-simulator/CarlaUE4.sh -opengl -RenderOffScreen
+        sleep 2
+        python3 simulation.py --dbname $dbname --town ${towns[i]} --dimension $width $height --imNum $imNum --traffic $traffic --angle ${sunAngles[j]}
+        carlaPID=$(pgrep -f CarlaUE4-Linux-)
+        kill -9 $carlaPID
+    done
+done
 
 python3 extra/evaluation_DB.py --dbname $dbname
+python3 extra/video_maker.py --dbname $dbname --fps 5

@@ -28,7 +28,7 @@ import carla
 IMAGE_FOLDER = None
 frame_id = None
 velocity = None
-MIN_VELOCITY = 0.1
+MIN_VELOCITY = 0
 
 VEHICLE_ID = ["a2", "impala", "c3", "microlino", "charger_police", "tt", "wrangler_rubicon", "coupe", "coupe_2020", "low_rider", "charger_2020", "ambulance", "mkz_2020", "mini", "prius", "crown", "carlacola", "zx125", "nissan",
               "charger_police_2020", "sprinter", "etron", "leon", "t2_2021", "cybertruck", "mkz_2017", "mustang", "carlamotors", "volkswagen", "tesla", "century", "omafiets", "grandtourer", "crossbike", "ninja", "yzf", "patrol", "micra", "cooper_s"]
@@ -65,7 +65,7 @@ class CamSettings(object):
         return self.yaw
 
 
-def camera_init(tag, world, town, vehicle, queue, cam_settings, config):
+def camera_init(tag, world, vehicle, queue, cam_settings, config):
     # config the blueprint
     blueprint_lib = world.get_blueprint_library()
     if tag == "seg":
@@ -95,7 +95,7 @@ def camera_init(tag, world, town, vehicle, queue, cam_settings, config):
     camera = world.spawn_actor(camera_bp, spawn_point, attach_to=vehicle)
 
     # camera action defined by the sensor callback
-    camera.listen(lambda data: sensor_callback(data, queue, town, config.dbname, tag, cam_settings.getId()))
+    camera.listen(lambda data: sensor_callback(data, queue, config.town, config.dbname, tag, cam_settings.getId()))
 
     return camera
 
@@ -103,11 +103,11 @@ def camera_init(tag, world, town, vehicle, queue, cam_settings, config):
 def sensor_callback(image, semaphore, town, dbname, tag, id):
     path = f"../{dbname}/{IMAGE_FOLDER}/{tag}/{town}_{id}_{frame_id}.png"
 
-    if velocity > MIN_VELOCITY:
-        if tag == "seg":
-            image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
-        else:
-            image.save_to_disk(path)
+    #if velocity > MIN_VELOCITY:
+    if tag == "seg":
+        image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
+    else:
+        image.save_to_disk(path)
 
     semaphore.put((image.frame, image))
 
