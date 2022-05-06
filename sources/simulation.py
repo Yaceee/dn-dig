@@ -9,13 +9,14 @@ from queue import Queue, Empty
 from time import sleep
 
 
-def simulation(config: Config, seed: int):
-    # ---------------------------------------------------------------------
+def simulation(config: Config):
+    # -------------------------------------------------------------------------
     # INITIALIZATION
     #
     vehicle_list = []
     sensor_list = []
-    pbar = tqdm(total=config.imNum)  # progression bar displayed
+    pbar = tqdm(total=config.getImNum())  # progression bar displayed
+
     try:
         # get the client
         client = dn.carla.Client(config.getHost(), config.getPort())
@@ -27,10 +28,10 @@ def simulation(config: Config, seed: int):
             pbar.reset()
             delta_sec = 0.1  # delta_sec <= 0.1 (github issue #695)
             world = client.get_world()
-            world = client.load_world(config.town)
+            world = client.load_world(config.getTown())
             world.apply_settings(dn.carla.WorldSettings(True, False, delta_sec))
         except RuntimeError:
-            pbar.set_description(f"Can not load {config.town} on the server")
+            pbar.set_description(f"Can not load {config.getTown()} on the server")
             pbar.close()
             sys.exit(1)
 
@@ -42,10 +43,10 @@ def simulation(config: Config, seed: int):
             TM_PORT += 1
             traffic_manager = client.get_trafficmanager(TM_PORT)
         traffic_manager.set_synchronous_mode(True)
-        traffic_manager.set_random_device_seed(seed)
+        traffic_manager.set_random_device_seed(config.getSeed())
 
         # weather
-        dn.IMAGE_FOLDER = "DAY" if config.angle >= 0 else "NIGHT"
+        dn.IMAGE_FOLDER = "DAY" if config.getAngle() >= 0 else "NIGHT"
         dn.set_weather(world, config)
 
         # set traffic and pick the first car
@@ -72,34 +73,33 @@ def simulation(config: Config, seed: int):
             sensor_list.append(cam_rgb)
             sensor_list.append(cam_seg)
 
-        # -----------------------------------------------------------------
+        # ---------------------------------------------------------------------
         # SIMULATION
         #
         world.tick()
         dn.frame_id = 1
-        pbar.set_description(config.town[0:6] + " (" + dn.IMAGE_FOLDER[0] + ")")
+        pbar.set_description(config.getTown()[0:6] + " (" + dn.IMAGE_FOLDER[0] + ")")
         pbar.update()
-        while dn.frame_id < config.imNum:
-            # dn.velocity = vehicle.get_velocity().length()
-            # Save images (need dn.velocity updated before)
-            try:
-                for _ in range(len(sensor_list)):
-                    semaphore.get(block=True, timeout=5)
-            except Empty:
-                pbar.set_description("Sensor error")
-                pbar.close()
-                dn.destroy_carla_object(vehicle_list, sensor_list)
-                sys.exit(2)
+        while dn.frame_id < config.getImNum():
+            dn.velocity = vehicle.get_velocity().length()
+            if dn.velocity >= dn.MIN_VELOCITY:
+                try:
+                    for _ in range(len(sensor_list)):
+                        semaphore.get(block=True, timeout=5)
+                except Empty:
+                    pbar.set_description("Sensor error")
+                    pbar.close()
+                    dn.destroy_carla_object(vehicle_list, sensor_list)
+                    sys.exit(2)
 
             # Update progress bar
-            # if dn.velocity > dn.MIN_VELOCITY:
-            dn.frame_id += 1
-            pbar.update()
+                dn.frame_id += 1
+                pbar.update()
 
             # Allow the server to generate the next scene
             [world.tick() for _ in range(round(1/delta_sec))]
 
-        # -----------------------------------------------------------------
+        # ---------------------------------------------------------------------
         # CLEANING
         #
         sleep(2)  # allow time to save the last image
@@ -134,14 +134,10 @@ if __name__ == '__main__':
         help='Main folder name where images are stored (default: DB)'
     )
     argparser.add_argument(
-        '--tag',
-        default='a',
-        help='Extra tag for image names (default: a)'
-    )
-    argparser.add_argument(
         '--town',
         default='town01',
-        choices=['town01', 'town02', 'town03', 'town04', 'town05', 'town06', 'town07', 'town10HD'],
+        choices=['town01', 'town02', 'town03', 'town04',
+                 'town05', 'town06', 'town07', 'town10HD'],
         help='Selected town (default: town01)'
     )
     argparser.add_argument(
@@ -149,12 +145,6 @@ if __name__ == '__main__':
         default=100,
         type=float,
         help='Vehicles speed percentage (default: 100 => the fastest)'
-    )
-    argparser.add_argument(
-        '--fps', '-fps',
-        default=1,
-        type=float,
-        help='Number of fps in simulator time (default: 1)'
     )
     argparser.add_argument(
         '--fov',
@@ -188,29 +178,12 @@ if __name__ == '__main__':
         help='Traffic percentage (default: 0)'
     )
     argparser.add_argument(
-        '--position',
-        nargs='+',
-        type=float,
-        default=[2.5, 0, 0.7],
-        help='(x,y,z) camera position (default: [2.5, 0, 0.7])'
-    )
-    argparser.add_argument(
-        '--rotation',
-        nargs='+',
-        type=float,
-        default=[0, 0, 0],
-        help='(roll,yaw,pitch) camera rotation (default: [0, 0, 0])'
-    )
-    argparser.add_argument(
         '--seed',
         type=int,
         default=1,
         help='Seed to initialize random sequences'
     )
 
-    config = argparser.parse_args()
-    conf_obj = Config(config.host, config.port, config.dbname, config.tag, config.town, config.fov, config.dimension[0], config.dimension[1], config.imNum, config.tag, config.angle, config.traffic, config.position, config.rotation, config.speed)
-
-    simulation(conf_obj, config.seed)
-
-    sleep(2)  # allow time to save the last image
+    config = Config(argparser.parse_args())
+    simulation(config)
+    sleep(2)  # allow time to end properly

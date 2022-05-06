@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-dbname="DB_crash_server"
-width="400"
-height="400"
+dbname="DB_little"
+width="1920"
+height="1080"
 imNum="10"
 sunAngles=( "25" "-175" )
 towns=( "town01" "town02" "town03" "town04" "town05" "town06" "town07" "town10HD" )
@@ -23,4 +23,4 @@ for (( i = 0; i < ${#towns[@]}; i++ )); do
 done
 
 python3 extra/evaluation_DB.py --dbname $dbname
-# python3 extra/video_maker.py --dbname $dbname --fps 5
+python3 extra/video_maker.py --dbname $dbname --fps 5

@@ -28,7 +28,7 @@ import carla
 IMAGE_FOLDER = None
 frame_id = None
 velocity = None
-MIN_VELOCITY = 0
+MIN_VELOCITY = 0.01
 
 VEHICLE_ID = ["a2", "impala", "c3", "microlino", "charger_police", "tt", "wrangler_rubicon", "coupe", "coupe_2020", "low_rider", "charger_2020", "ambulance", "mkz_2020", "mini", "prius", "crown", "carlacola", "zx125", "nissan",
               "charger_police_2020", "sprinter", "etron", "leon", "t2_2021", "cybertruck", "mkz_2017", "mustang", "carlamotors", "volkswagen", "tesla", "century", "omafiets", "grandtourer", "crossbike", "ninja", "yzf", "patrol", "micra", "cooper_s"]
@@ -75,10 +75,10 @@ def camera_init(tag, world, vehicle, queue, cam_settings, config):
     else:
         return None
 
-    camera_bp.set_attribute("image_size_x", f"{config.dimension[0]}")
-    camera_bp.set_attribute("image_size_y", f"{config.dimension[1]}")
+    camera_bp.set_attribute("image_size_x", f"{config.getDimension()[0]}")
+    camera_bp.set_attribute("image_size_y", f"{config.getDimension()[1]}")
     camera_bp.set_attribute("sensor_tick", '1')
-    camera_bp.set_attribute("fov", f"{config.fov}")
+    camera_bp.set_attribute("fov", f"{config.getFov()}")
 
     # pick and place
     spawn_point = carla.Transform(carla.Location(
@@ -95,7 +95,7 @@ def camera_init(tag, world, vehicle, queue, cam_settings, config):
     camera = world.spawn_actor(camera_bp, spawn_point, attach_to=vehicle)
 
     # camera action defined by the sensor callback
-    camera.listen(lambda data: sensor_callback(data, queue, config.town, config.dbname, tag, cam_settings.getId()))
+    camera.listen(lambda data: sensor_callback(data, queue, config.getTown(), config.getDbname(), tag, cam_settings.getId()))
 
     return camera
 
@@ -103,17 +103,17 @@ def camera_init(tag, world, vehicle, queue, cam_settings, config):
 def sensor_callback(image, semaphore, town, dbname, tag, id):
     path = f"../{dbname}/{IMAGE_FOLDER}/{tag}/{town}_{id}_{frame_id}.png"
 
-    #if velocity > MIN_VELOCITY:
-    if tag == "seg":
-        image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
-    else:
-        image.save_to_disk(path)
+    if velocity >= MIN_VELOCITY:
+        if tag == "seg":
+            image.save_to_disk(path, carla.ColorConverter.CityScapesPalette)
+        else:
+            image.save_to_disk(path)
 
-    semaphore.put((image.frame, image))
+        semaphore.put((image.frame, image))
 
 
 def set_weather(world, config):
-    weather = carla.WeatherParameters(sun_altitude_angle=config.angle)
+    weather = carla.WeatherParameters(sun_altitude_angle=config.getAngle())
     world.set_weather(weather)
 
 
@@ -123,7 +123,7 @@ def set_autonom_car(world, config, traffic_manager, tm_port):
 
     # select enought spawn points
     spawn_list = world.get_map().get_spawn_points()
-    nb_vehicle = round(config.traffic / 100 * (len(spawn_list)-1)) + 1
+    nb_vehicle = round(config.getTraffic() / 100 * (len(spawn_list)-1)) + 1
     spawn_list = spawn_list[0:nb_vehicle]
 
     vehicle_list = [0] * nb_vehicle
@@ -133,7 +133,7 @@ def set_autonom_car(world, config, traffic_manager, tm_port):
     else:
         lights = carla.VehicleLightState.NONE
 
-    max_speed = 100 - config.speed
+    max_speed = 100 - config.getSpeed()
     i = 0
     nb_model = len(VEHICLE_ID)
     for spawn in spawn_list:

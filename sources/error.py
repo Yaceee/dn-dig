@@ -7,8 +7,8 @@ def checkConnection(host, port):
     except:
         return -1
 
-def checkDimensions(width, height):
-    return type(width) == int and width>0 and type(height) == int and height>0
+def checkDimensions(dimension):
+    return type(dimension[0]) == int and dimension[0]>0 and type(dimension[1]) == int and dimension[1]>0
 
 def checkImgNum(imgNum):
     return type(imgNum) == int and imgNum>0

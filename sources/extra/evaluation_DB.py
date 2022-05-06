@@ -116,6 +116,6 @@ if __name__ == "__main__":
 
     scores = evaluation(id_days, id_nights)
 
-    print("Writting results")
+    print("Writing results")
     make_graph(scores)
     write_score(scores, id_days)
