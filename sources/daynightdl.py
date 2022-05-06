@@ -147,3 +147,14 @@ def set_autonom_car(world, config, traffic_manager, tm_port):
         i += 1
 
     return vehicle_list
+
+
+def destroy_carla_object(vehicles, sensors):
+    for sensor in sensors:
+        sensor.stop()
+        sensor.destroy()
+    for vehicle in vehicles:
+        try:
+            vehicle.destroy()
+        except RuntimeError:  # vehicle already destroyed
+            pass
