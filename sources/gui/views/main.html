@@ -14,6 +14,11 @@
 	<div class="form-cont">
 
 		<div class="input-cont">
+			<label for="dbname">Folder name</label>
+			<input type="text" name="dbname" value="DB_1" id="dbname">
+		</div>
+
+		<div class="input-cont">
 			<label for="imNum">Number of images</label>
 			<input type="number" name="imNum" min="1" value="1" id="imNum">
 		</div>
@@ -85,7 +90,8 @@
 				'day' : document.getElementById('day').value,
 				'night' : document.getElementById('night').value,
 				'traffic' : document.getElementById('traffic').value,
-				'town' : document.getElementById('town').value
+				'town' : document.getElementById('town').value,
+				'dbname' : document.getElementById('dbname').value
 			}
 
 			return json_conf

@@ -1,6 +1,7 @@
 import daynightdl as dn
 import argparse
-from config import Config
+from config import Config, confFromJSON
+import json
 
 from tqdm import tqdm
 from queue import Queue, Empty
@@ -181,10 +182,24 @@ if __name__ == '__main__':
         default=[0, 0, 0],
         help='(roll,yaw,pitch) camera rotation (default: [0, 0, 0])'
     )
+    argparser.add_argument(
+        '--json', '-j',
+        type=float,
+        help='load a JSON conf file'
+    )
 
     config = argparser.parse_args()
-    conf_obj = Config(config.host, config.port, config.tag, config.town, config.fov, config.dimension[0], config.dimension[1], config.imNum, config.angle, config.traffic, config.speed)
 
-    simulation(conf_obj)
+    if(config.json):
+        f = open(config.json)
+        data = json.load(f)
+        conf_obj = confFromJSON(data)
+        
+    else:
+        conf_obj = Config(config.host, config.port, config.tag, config.town, config.fov, config.dimension[0], config.dimension[1], config.imNum, config.angle, config.traffic, config.speed)
+
+
+    if(conf_obj.checkConfig()):
+        simulation(conf_obj)
 
     sleep(2)  # allow time to save the last image

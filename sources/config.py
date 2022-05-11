@@ -37,7 +37,20 @@ class Config:
 
 	VEHICLE_ID = ["a2", "impala", "c3", "microlino", "charger_police", "tt", "wrangler_rubicon", "coupe", "coupe_2020", "low_rider", "charger_2020", "ambulance", "mkz_2020", "mini", "prius", "crown", "carlacola", "zx125", "nissan", "charger_police_2020", "sprinter", "etron", "leon", "t2_2021", "cybertruck", "mkz_2017", "mustang", "carlamotors", "volkswagen", "tesla", "century", "omafiets", "grandtourer", "crossbike", "ninja", "yzf", "patrol", "micra", "cooper_s"]
 
-	def __init__(self, host=HOST, port=PORT, sim=SIM_ID, town=TOWN_ID, fov=IM_FOV, width=IM_WIDTH, height=IM_HEIGHT, imNum=IM_NUMBER, angle=ANGLE_DAY, traffic=TRAFFIC, vehicle_id=VEHICLE_ID, speed=SPEED):
+	def __init__(self, 
+				host=HOST, 
+				port=PORT, 
+				sim=SIM_ID, 
+				town=TOWN_ID, 
+				fov=IM_FOV, 
+				width=IM_WIDTH, 
+				height=IM_HEIGHT, 
+				imNum=IM_NUMBER, 
+				angle=ANGLE_DAY, 
+				traffic=TRAFFIC, 
+				vehicle_id=VEHICLE_ID, 
+				speed=SPEED,
+				dbname = "DB_test"):
 		self.host = host
 		self.port = port
 		self.sim = sim
@@ -55,7 +68,7 @@ class Config:
 		self.fps = 1
 		self.position = [2.5, 0, 0.7]
 		self.rotation = [0, 0, 0]
-		self.dbname = "DB_test"
+		self.dbname = dbname
 
 	def getHost(self):
 		return self.host
@@ -88,10 +101,14 @@ class Config:
 		return self.vehicle_id
 
 	def checkConfig(self):
-		error.checkConnection(self.host, self.port)
-		error.checkDimensions(self.width, self.height)
-		error.checkFov(self.fov)
-		error.checkImgNum(self.imNum)
+		return (
+			error.checkConnection(self.host, self.port)
+		and error.checkDimensions(self.width, self.height)
+		and error.checkFov(self.fov)
+		and error.checkImgNum(self.imNum)
+		and error.checkAngle(self.angle)
+		and error.checkTown(self.town))
+
 
 	def __str__(self) -> str:
 		ret_str = "Conf object\n"
@@ -99,16 +116,34 @@ class Config:
 			ret_str += "{} : {}\n".format(a, type(getattr(self, a)))
 		return ret_str
 
-def confFromJSON(json : JSON):
+def confFromJSON(json : JSON) -> Config:
 	decoded = json
 
-	confDay = Config(decoded['host'], decoded['port'],SIM_ID , decoded['town'], decoded['fov'],
-	decoded['width'], decoded['height'], decoded['imNum'], decoded['day'],
-	decoded['traffic'], Config.VEHICLE_ID)
+	confDay = Config(decoded['host'], 
+		decoded['port'],
+		SIM_ID, 
+		decoded['town'],
+		decoded['fov'],
+		decoded['width'], 
+		decoded['height'], 
+		decoded['imNum'], 
+		decoded['day'],
+		decoded['traffic'], 
+		Config.VEHICLE_ID, 
+		dbname = decoded['dbname'])
 
-	confNight = Config(decoded['host'], decoded['port'],SIM_ID , decoded['town'], decoded['fov'],
-	decoded['width'], decoded['height'], decoded['imNum'], decoded['night'],
-	decoded['traffic'], Config.VEHICLE_ID)
+	confNight = Config(decoded['host'], 
+		decoded['port'], 
+		SIM_ID, 
+		decoded['town'], 
+		decoded['fov'],
+		decoded['width'], 
+		decoded['height'], 
+		decoded['imNum'], 
+		decoded['night'],
+		decoded['traffic'], 
+		Config.VEHICLE_ID, 
+		dbname=decoded['dbname'])
 	return (confDay, confNight)
 
 globalConf = Config(HOST, PORT, SIM_ID, TOWN_ID, IM_FOV, IM_WIDTH, IM_HEIGHT, IM_NUMBER,
