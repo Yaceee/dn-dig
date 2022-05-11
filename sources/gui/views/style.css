@@ -31,7 +31,10 @@ body
 .form-cont
 {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .input-cont
@@ -40,4 +43,50 @@ body
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+}
+
+.general-conf
+{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 2px #C6C6C6 solid;
+    border-radius: 20px;
+    height: max-content;
+    justify-content: center;
+    margin: 10px;
+}
+
+.img-conf
+{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 2px #C6C6C6 solid;
+    border-radius: 20px;
+    height: fit-content;
+    justify-content: center;
+    margin: 10px;
+}
+
+.sim-conf
+{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    border: 2px #C6C6C6 solid;
+    border-radius: 20px;
+    margin: 10px;
+    height: max-content;
+}
+
+h2
+{
+    font-size: 1.2rem;
+}
+
+.col
+{
+    height: 100%;
+    justify-content: start;
 }

@@ -13,63 +13,84 @@
 	</div>
 	<div class="form-cont">
 
-		<div class="input-cont">
-			<label for="dbname">Folder name</label>
-			<input type="text" name="dbname" value="DB_1" id="dbname">
+		<div class="col">
+			<div class="general-conf">
+				<h2>General configuration</h2>
+				<div class="input-cont">
+					<label for="dbname">Folder name</label>
+					<input type="text" name="dbname" value="DB_1" id="dbname">
+				</div>
+		
+				<div class="input-cont">
+					<label for="host">Host</label>
+					<input type="text" value="localhost" name="host" id="host">
+				</div>
+			
+				<div class="input-cont">
+					<label for="port">Port</label>
+					<input type="number" min="1" value="8000" name="port" id="port">
+				</div>
+			</div>
+	
+			<div class="img-conf">
+				<h2>Images configuration</h2>
+				<div class="input-cont">
+					<label for="imNum">Number of images</label>
+					<input type="number" name="imNum" min="1" value="1" id="imNum">
+				</div>
+				
+				<div class="input-cont">
+					<label for="width">Width</label>
+					<input type="number" value="640" min="1" name="width" id="width">
+				</div>
+			
+				<div class="input-cont">
+					<label for="height">Height</label>
+					<input type="number" value="480" min="1" name="height" id="height">
+				</div>
+			</div>
 		</div>
 
-		<div class="input-cont">
-			<label for="imNum">Number of images</label>
-			<input type="number" name="imNum" min="1" value="1" id="imNum">
+
+		<div class="col">
+			<div class="sim-conf">
+				<h2>Simulation configuration</h2>
+				<div class="input-cont">
+					<label for="seed">Seed</label>
+					<input type="number" min="0" max="32767" name="seed" id="seed">
+					<button id="rand-seed">Random</button>
+				</div>
+				
+				<div class="input-cont">
+					<label for="town">Town</label>
+					<input type="number" min="1" value="10" name="town" id="town">
+				</div>
+			
+			
+				<div class="input-cont">
+					<label for="fov">Field of view</label>
+					<input type="number" value="110" min="1" max="360" name="fov" id="fov">
+				</div>
+			
+				<div class="input-cont">
+					<label for="day">Angle Day</label>
+					<input type="number" value="110" min="0" max="180" name="day" id="day">
+				</div>
+			
+				<div class="input-cont">
+					<label for="night">Angle Night</label>
+					<input type="number" value="110" min="-180" max="0" name="night" id="night">
+				</div>
+			
+				<div class="input-cont">
+					<label for="traffic">Traffic</label>
+					<input type="number" value="20" min="0" max="100" name="traffic" id="traffic">
+				</div>
+			</div>
 		</div>
 	
-		<div class="input-cont">
-			<label for="host">Host</label>
-			<input type="text" value="localhost" name="host" id="host">
-		</div>
-	
-		<div class="input-cont">
-			<label for="port">Port</label>
-			<input type="number" min="1" value="8000" name="port" id="port">
-		</div>
-	
-		<div class="input-cont">
-			<label for="town">Town</label>
-			<input type="number" min="1" value="10" name="town" id="town">
-		</div>
-	
-		<div class="input-cont">
-			<label for="width">Width</label>
-			<input type="number" value="640" min="1" name="width" id="width">
-		</div>
-	
-		<div class="input-cont">
-			<label for="height">Height</label>
-			<input type="number" value="480" min="1" name="height" id="height">
-		</div>
-	
-		<div class="input-cont">
-			<label for="fov">Field of view</label>
-			<input type="number" value="110" min="1" max="360" name="fov" id="fov">
-		</div>
-	
-		<div class="input-cont">
-			<label for="day">Angle Day</label>
-			<input type="number" value="110" min="0" max="180" name="day" id="day">
-		</div>
-	
-		<div class="input-cont">
-			<label for="night">Angle Night</label>
-			<input type="number" value="110" min="-180" max="0" name="night" id="night">
-		</div>
-	
-		<div class="input-cont">
-			<label for="traffic">Traffic</label>
-			<input type="number" value="20" min="0" max="100" name="traffic" id="traffic">
-		</div>
-	
-		<button id="generate-button">Generate</button>
 	</div>
+	<button id="generate-button">Generate</button>
 
 	<script type="text/javascript" src="/eel.js"></script>
 	<script>
@@ -91,7 +112,8 @@
 				'night' : document.getElementById('night').value,
 				'traffic' : document.getElementById('traffic').value,
 				'town' : document.getElementById('town').value,
-				'dbname' : document.getElementById('dbname').value
+				'dbname' : document.getElementById('dbname').value,
+				'seed' : document.getElementById('seed').value
 			}
 
 			return json_conf
@@ -99,10 +121,16 @@
 
 		function mountButton()
 		{
-			btn = document.getElementById('generate-button')
+			btn = document.getElementById('generate-button');
 
-			btn.addEventListener("click", startSimulation)
+			btn.addEventListener("click", startSimulation);
 		}
+
+		let random_btn = document.getElementById("rand-seed");
+		let seed = document.getElementById('seed')
+		random_btn.addEventListener("click", () => {
+			seed.value = Math.floor(Math.random() * 32761)
+		})
 
 		mountButton()
 	</script>

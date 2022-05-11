@@ -2,7 +2,6 @@ import daynightdl as dn
 import argparse
 from config import Config, confFromJSON
 import json
-import numpy as np
 import sys
 
 from config import Config
@@ -199,10 +198,10 @@ if __name__ == '__main__':
         conf_obj = confFromJSON(data)
         
     else:
-        conf_obj = Config(config.host, config.port, config.tag, config.town, config.fov, config.dimension[0], config.dimension[1], config.imNum, config.angle, config.traffic, config.speed)
+        conf_obj = Config(argparser.parse_args())
 
 
     if(conf_obj.checkConfig()):
         simulation(conf_obj)
 
-    sleep(2)  # allow time to save the last image
+    sleep(2)  # allow time to end properly
