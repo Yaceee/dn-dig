@@ -1,5 +1,14 @@
 *.png
 *.txt
+*.zip
+*.gz
+*.avi
+*.mp4
+*.tex
 test/*
+documentation/build/*
+documentation/img/*
 sources/__pycache__/*
 sources/node_modules
+sources/examples/*
+sources/test/*
