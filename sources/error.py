@@ -12,8 +12,8 @@ def checkConnection(host, port):
         print('Can\'t connect to server')
         return False
 
-def checkDimensions(width, height):
-    if( type(width) == int and width>0 and type(height) == int and height>0):
+def checkDimensions(dimension):
+    if( type(dimension[0]) == int and dimension[0]>0 and type(dimension[1]) == int and dimension[1]>0):
         return True
     else:
         print("Dimensions values wrong (must be int >0)")

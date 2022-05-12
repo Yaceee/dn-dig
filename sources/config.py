@@ -9,7 +9,8 @@ import error
 import json
 from types import SimpleNamespace
 
-class Config:
+
+class Config():
 	def __init__(self, data):
 		self.data = data
 
@@ -48,13 +49,12 @@ class Config:
 
 	def checkConfig(self):
 		return (
-			error.checkConnection(self.data.host, self.data.port)
-		and error.checkDimensions(self.data.width, self.data.height)
-		and error.checkFov(self.data.fov)
-		and error.checkImgNum(self.data.imNum)
-		and error.checkAngle(self.data.angle)
-		and error.checkTown(self.data.town))
-
+                    error.checkConnection(self.data.host, self.data.port)
+                    and error.checkDimensions(self.data.dimension)
+                    and error.checkFov(self.data.fov)
+                    and error.checkImgNum(self.data.imNum)
+                    and error.checkAngle(self.data.angle)
+                    and error.checkTown(self.data.town))
 
 	def __str__(self) -> str:
 		ret_str = "Conf object\n"
@@ -62,7 +62,8 @@ class Config:
 			ret_str += "{} : {}\n".format(a, type(getattr(self, a)))
 		return ret_str
 
-def confFromJSON(data : json):
+
+def confFromJSON(data: json):
 	decoded = json.loads(data, object_hook=lambda d: SimpleNamespace(**d))
 
 	confDay = Config(decoded)
