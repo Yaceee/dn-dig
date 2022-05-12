@@ -17,28 +17,33 @@ def get_images_path(dir):
 
 def main(arg):
     Vwidth = 1920
-    Iwidth = 640
-    height = 1080
+    Vheight = 1080
+    Iwidth = int(Vwidth / 2)
+    Iheight = int(Vheight / 2)
 
-    day_files = get_images_path("../" + arg.dbname + "/DAY/rgb")
-    seg_files = get_images_path("../" + arg.dbname + "/DAY/seg")
-    ngt_files = get_images_path("../" + arg.dbname + "/NIGHT/rgb")
+    day_rgb_files = get_images_path("../" + arg.dbname + "/DAY/rgb")
+    day_seg_files = get_images_path("../" + arg.dbname + "/DAY/seg")
+    ngt_rgb_files = get_images_path("../" + arg.dbname + "/NIGHT/rgb")
+    ngt_seg_files = get_images_path("../" + arg.dbname + "/NIGHT/seg")
 
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
     video = cv2.VideoWriter("../" + arg.dbname + "/video.avi",
-                            fourcc, arg.fps, (Vwidth, height))
+                            fourcc, arg.fps, (Vwidth, Vheight))
 
-    for i in tqdm(range(1, len(day_files))):
-        day = cv2.imread(day_files[i])
-        ngt = cv2.imread(ngt_files[i])
-        seg = cv2.imread(seg_files[i])
+    for i in tqdm(range(1, len(day_rgb_files))):
+        day_rgb = cv2.imread(day_rgb_files[i])
+        day_seg = cv2.imread(day_seg_files[i])
+        ngt_rgb = cv2.imread(ngt_rgb_files[i])
+        ngt_seg = cv2.imread(ngt_seg_files[i])
 
-        ngt = cv2.resize(ngt, (Iwidth, height))
-        day = cv2.resize(day, (Iwidth, height))
-        seg = cv2.resize(seg, (Iwidth, height))
+        day_rgb = cv2.resize(day_rgb, (Iwidth, Iheight))
+        day_seg = cv2.resize(day_seg, (Iwidth, Iheight))
+        ngt_rgb = cv2.resize(ngt_rgb, (Iwidth, Iheight))
+        ngt_seg = cv2.resize(ngt_seg, (Iwidth, Iheight))
 
-        img = cv2.hconcat([day, seg, ngt])
-        video.write(img)
+        frame = cv2.vconcat([cv2.hconcat([day_rgb, day_seg]),
+                            cv2.hconcat([ngt_rgb, ngt_seg])])
+        video.write(frame)
 
     cv2.destroyAllWindows()
     video.release()
