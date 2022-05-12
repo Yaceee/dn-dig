@@ -17,7 +17,7 @@ class Config:
 		return self.data.host
 
 	def getPort(self):
-		return self.data.port
+		return int(self.data.port)
 
 	def getDbname(self):
 		return self.data.dbname
@@ -35,16 +35,16 @@ class Config:
 		return self.data.dimension
 
 	def getImNum(self):
-		return self.data.imNum
+		return int(self.data.imNum)
 
 	def getAngle(self):
-		return self.data.angle
+		return int(self.data.angle)
 
 	def getTraffic(self):
-		return self.data.traffic
+		return int(self.data.traffic)
 
 	def getSeed(self):
-		return self.data.seed
+		return int(self.data.seed)
 
 	def checkConfig(self):
 		error.checkConnection(self.data.host, self.data.port)

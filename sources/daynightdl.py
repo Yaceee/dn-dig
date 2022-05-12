@@ -8,8 +8,6 @@ import glob
 import os
 import sys
 
-from config import Config
-
 try:
     sys.path.append(
         glob.glob(
@@ -33,9 +31,10 @@ MIN_VELOCITY = 0.01
 VEHICLE_ID = ["a2", "impala", "c3", "microlino", "charger_police", "tt", "wrangler_rubicon", "coupe", "coupe_2020", "low_rider", "charger_2020", "ambulance", "mkz_2020", "mini", "prius", "crown", "carlacola", "zx125", "nissan",
               "charger_police_2020", "sprinter", "etron", "leon", "t2_2021", "cybertruck", "mkz_2017", "mustang", "carlamotors", "volkswagen", "tesla", "century", "omafiets", "grandtourer", "crossbike", "ninja", "yzf", "patrol", "micra", "cooper_s"]
 
+
 class CamSettings(object):
     def __init__(self, id="a", x=2.5, y=0, z=0.7, roll=0, pitch=0, yaw=0):
-        self.id=id
+        self.id = id
         self.x = x
         self.y = y
         self.z = z
@@ -72,12 +71,13 @@ def camera_init(tag, world, vehicle, queue, cam_settings, config):
         camera_bp = blueprint_lib.find("sensor.camera.semantic_segmentation")
     elif tag == "rgb":
         camera_bp = blueprint_lib.find("sensor.camera.rgb")
+        camera_bp.set_attribute("motion_blur_intensity", "0")  # 0 => disabled
     else:
         return None
 
     camera_bp.set_attribute("image_size_x", f"{config.getDimension()[0]}")
     camera_bp.set_attribute("image_size_y", f"{config.getDimension()[1]}")
-    camera_bp.set_attribute("sensor_tick", '1')
+    camera_bp.set_attribute("sensor_tick", "1")
     camera_bp.set_attribute("fov", f"{config.getFov()}")
 
     # pick and place
