@@ -47,10 +47,14 @@ class Config:
 		return int(self.data.seed)
 
 	def checkConfig(self):
-		error.checkConnection(self.data.host, self.data.port)
-		error.checkDimensions(self.data.dimension)
-		error.checkFov(self.data.fov)
-		error.checkImgNum(self.data.simNum)
+		return (
+			error.checkConnection(self.data.host, self.data.port)
+		and error.checkDimensions(self.data.width, self.data.height)
+		and error.checkFov(self.data.fov)
+		and error.checkImgNum(self.data.imNum)
+		and error.checkAngle(self.data.angle)
+		and error.checkTown(self.data.town))
+
 
 	def __str__(self) -> str:
 		ret_str = "Conf object\n"

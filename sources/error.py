@@ -1,17 +1,48 @@
 import carla
 
+towns = ['town01', 'town02', 'town03', 'town04',
+                 'town05', 'town06', 'town07', 'town10HD']
+
+
 def checkConnection(host, port):
     try:
         carla.Client(host, port)
-        return 0
+        return True
     except:
-        return -1
+        print('Can\'t connect to server')
+        return False
 
-def checkDimensions(dimension):
-    return type(dimension[0]) == int and dimension[0]>0 and type(dimension[1]) == int and dimension[1]>0
+def checkDimensions(width, height):
+    if( type(width) == int and width>0 and type(height) == int and height>0):
+        return True
+    else:
+        print("Dimensions values wrong (must be int >0)")
+        return False
 
 def checkImgNum(imgNum):
-    return type(imgNum) == int and imgNum>0
+    if( type(imgNum) == int and imgNum>0):
+        return True
+    else:
+        print("ImNum value wrong (must be int >0)")
+        return False
 
 def checkFov(fov):
-    return fov>0 and fov<360
+    if( fov>0 and fov<360):
+        return True
+    else:
+        print("FOV value wrong (must be between 0 and 360)")
+        return False
+
+def checkTown(town):
+    if (town in towns):
+        return True
+    else:
+        print('Can\'t find town')
+        return False
+
+def checkAngle(angle):
+    if (angle>=-180 and angle<=180):
+        return True
+    else:
+        print("Angle value wrong (must be between -180 and 180)")
+        return False

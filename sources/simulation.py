@@ -1,6 +1,7 @@
 import daynightdl as dn
 import argparse
-import numpy as np
+from config import Config, confFromJSON
+import json
 import sys
 
 from config import Config
@@ -183,7 +184,24 @@ if __name__ == '__main__':
         default=1,
         help='Seed to initialize random sequences'
     )
+    argparser.add_argument(
+        '--json', '-j',
+        type=float,
+        help='load a JSON conf file'
+    )
 
-    config = Config(argparser.parse_args())
-    simulation(config)
+    config = argparser.parse_args()
+
+    if(config.json):
+        f = open(config.json)
+        data = json.load(f)
+        conf_obj = confFromJSON(data)
+        
+    else:
+        conf_obj = Config(argparser.parse_args())
+
+
+    if(conf_obj.checkConfig()):
+        simulation(conf_obj)
+
     sleep(2)  # allow time to end properly

@@ -12,7 +12,7 @@ function createWindow () {
   mainWindow.loadURL('http://localhost:21445/views/main.html')
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 }
 
 // This method will be called when Electron has finished
