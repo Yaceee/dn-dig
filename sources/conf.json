@@ -1,0 +1,13 @@
+{
+    "host": "localhost",
+    "port": 2000,
+    "dbname": "DB_",
+    "town": ["town01", "town02", "town03", "town04", "town05", "town06", "town07", "town10HD"],
+    "angle": [70, -165],
+    "dimension": [1920, 1080],
+    "imnum": 64,
+    "fov": 110,
+    "traffic": 15,
+    "speed": 100,
+    "seed": 1
+}

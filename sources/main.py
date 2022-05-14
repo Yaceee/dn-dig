@@ -1,45 +1,50 @@
-"""
-Equivalent de main.sh en python, ne pas hésiter à modifier / reprendre
-"""
+from threading import Thread
 from time import sleep
+from copy import deepcopy
 import os
+import json
+
+from simulation import simulation
+from config import Config
 
 
-def record():
-    config = {
-        "host": "localhost",
-        "port": "2000",
-        "dbname": "DB_",
-        "town": ["town01", "town02"],
-        "dimension": ["1920", "1080"],
-        "imNum": "3",
-        "traffic": "15",
-        "fov": "110",
-        "seed": "1",
-        "speed": "100",
-        "angle": ["70", "-165"]
-    }
-    arg = ""
-    for key, val in config.items():
-        arg += " --" + key + " "
-        if key == "angle" or key == "town":
-            arg += "{" + key + "}"
-        elif key == "dimension":
-            arg += val[0] + " " + val[1]
-        else:
-            arg += val
+class SimThread(Thread):
+    def __init__(self, config: Config):
+        self.conf = config
+        Thread.__init__(self)
 
-    for town in config["town"]:
-        for angle in config["angle"]:
+    def run(self):
+        simulation(self.conf)
+
+
+def record(input):
+    if(type(input) == str):
+        with open(input) as jsonFile:
+            globalData = json.load(jsonFile)
+    else:
+        globalData = input
+        globalData["angle"] = [globalData["day"], globalData["night"]]
+        globalData["dimension"] = [globalData["width"], globalData["height"]]
+        globalData["speed"] = 100
+        print(globalData)
+
+    for town in globalData["town"]:
+        for angle in globalData["angle"]:
             os.system(f"gnome-terminal --tab --title \"Server on {town}\" -- /opt/carla-simulator/CarlaUE4.sh -opengl -RenderOffScreen")
+
+            data = deepcopy(globalData)
+            data["town"] = town
+            data["angle"] = angle
+            configObject = Config(data)
+
             sleep(2)
-            try:
-                os.system("python3 simulation.py" + arg.format(town=town, angle=angle))
-            except:
-                pass
+            thread = SimThread(configObject)
+            thread.start()
+            thread.join()
 
             carlaPID = os.popen("ps -a | grep Carla | awk '{print $1}'").read()[:-1]
             os.kill(int(carlaPID), 9)
 
 
-record()
+if __name__ == "__main__":
+    record("./conf.json")

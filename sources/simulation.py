@@ -1,6 +1,5 @@
 import daynightdl as dn
 import argparse
-from config import Config, confFromJSON
 import json
 import sys
 
@@ -63,7 +62,7 @@ def simulation(config: Config):
         sensor_settings = [dn.CamSettings(id="f"),
                            dn.CamSettings(id="h", x=5, z=10, pitch=-40),
                            dn.CamSettings(id="r", y=5, x=4, z=2, yaw=90),
-                           dn.CamSettings(id="l", y=-8,x=4, z=2, yaw=-90)]
+                           dn.CamSettings(id="l", y=-8, x=4, z=2, yaw=-90)]
 
         for setting in sensor_settings:
             cam_rgb = dn.camera_init("rgb", world, vehicle, semaphore,
@@ -195,11 +194,8 @@ if __name__ == '__main__':
     if(config.json):
         f = open(config.json)
         data = json.load(f)
-        conf_obj = confFromJSON(data)
-        
     else:
         conf_obj = Config(argparser.parse_args())
-
 
     if(conf_obj.checkConfig()):
         simulation(conf_obj)
